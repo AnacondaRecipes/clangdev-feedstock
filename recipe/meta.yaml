@@ -93,8 +93,8 @@ build:
 
 requirements:
   build:
-    - {{ compiler('c')    # [not osx]
-    - {{ compiler('cxx')  # [not osx]
+    - {{ compiler('c') }}    # [not osx]
+    - {{ compiler('cxx') }}  # [not osx]
     - cmake >=3.4.3
 
     # Needed to unpack the source tarball
