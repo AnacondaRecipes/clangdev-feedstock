@@ -24,7 +24,7 @@ requirements:
     - {{ compiler('cxx') }}
     - cmake >=3.4.3
     # Needed to unpack the source tarball
-    - m2w64-xz  # [win]
+    - m2w64-xz  # [py27 and win64]
     # "compiling .pyc files" fails without this
     - python >3
     # Buildin with ninja on windows for parallel builds
