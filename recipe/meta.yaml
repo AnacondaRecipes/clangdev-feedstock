@@ -100,8 +100,6 @@ requirements:
     # Needed to unpack the source tarball
     - m2w64-xz  # [py27 and win]
 
-    - system  # [linux and not armv7l]
-
     # "compiling .pyc files" fails without this:
     - python
 
@@ -112,7 +110,6 @@ requirements:
 {% endif %}
 
   run:
-    - system  # [linux and not armv7l]
     - llvmdev =={{ version }}
     - libxml2 2.9.*
     - vs2015_runtime  # [win]
