@@ -33,9 +33,10 @@ requirements:
   host:
     - llvmdev =={{ version }}
     - libxml2
+    - zlib
   run:
     - llvmdev =={{ version }}
-    - libxml2
+    - libxml2 2.9.*
 
 test:
   requires:
