@@ -103,15 +103,16 @@ requirements:
     # "compiling .pyc files" fails without this:
     - python
 
+  host:
     - llvmdev =={{ version }}
-    - libxml2 2.9.*
+    - libxml2
+    - zlib
 {% if clang_variant == "cling" %}
     - cling-patches
 {% endif %}
 
   run:
     - llvmdev =={{ version }}
-    - libxml2 2.9.*
     - vs2015_runtime  # [win]
 
 test:
