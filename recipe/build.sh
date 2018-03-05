@@ -70,7 +70,7 @@ fi
 # _cmake_config+=(--trace-expand)
 # CPU_COUNT=1
 
-mkdir build
+mkdir build || true
 cd build
 
 cmake -G'Unix Makefiles'     \
