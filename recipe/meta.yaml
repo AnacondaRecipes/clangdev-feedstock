@@ -80,7 +80,8 @@ source:
 build:
   number: {{ build_number }}
 #  string: {{ clang_variant }}_{{ build_number  }}
-  skip: true  # [py<36]
+  skip_compile_pyc:
+    - '**/*.py'
 
 {% if clang_variant == "cling" %}
   features:
@@ -99,9 +100,6 @@ requirements:
 
     # Needed to unpack the source tarball
     - m2w64-xz  # [py27 and win]
-
-    # "compiling .pyc files" fails without this:
-    - python 3.6.*
 
   host:
     - llvmdev =={{ version }}
