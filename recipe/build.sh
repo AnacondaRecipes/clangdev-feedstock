@@ -3,7 +3,7 @@
 set -x
 
 if [[ $(uname) == Darwin ]]; then
-  ${SYS_PREFIX}/bin/conda create -y -p ${SRC_DIR}/bootstrap clangxx_osx-64
+  ${SYS_PREFIX}/bin/conda create -y -p ${SRC_DIR}/bootstrap clangxx_osx-64 -c https://repo.continuum.io/pkgs/main
   export PATH=${SRC_DIR}/bootstrap/bin:${PATH}
   CONDA_PREFIX=${SRC_DIR}/bootstrap \
     . ${SRC_DIR}/bootstrap/etc/conda/activate.d/*
@@ -36,7 +36,16 @@ _cmake_config+=(-DHAVE_TERMINFO_NCURSESW=OFF)
 _cmake_config+=(-DHAVE_TERMINFO_TERMINFO=OFF)
 _cmake_config+=(-DHAVE_TERMINFO_TINFO=OFF)
 _cmake_config+=(-DHAVE_TERMIOS_H=OFF)
-_cmake_config+=(-DCLANG_ENABLE_LIBXML=OFF)
+_cmake_config+=(-DCLANG_ENABLE_LIBXML=ON)
+# Even with -DCLANG_ENABLE_LIBXML=OFF c-index-test
+# will still link to the system libxml2 (since we need it for
+# that we may as well turn it on for anything else that wants it)
+_cmake_config+=(-DLIBXML2_INCLUDE_DIR=${PREFIX}/include/libxml2)
+if [[ ${HOST} =~ .*darwin.* ]]; then
+  _cmake_config+=(-DLIBXML2_LIBRARIES=${PREFIX}/lib/libxml2.dylib)
+elif [[ ${HOST} =~ .*linux.* ]]; then
+  _cmake_config+=(-DLIBXML2_LIBRARIES=${PREFIX}/lib/libxml2.so)
+fi
 _cmake_config+=(-DLIBOMP_INSTALL_ALIASES=OFF)
 _cmake_config+=(-DLLVM_ENABLE_RTTI=ON)
 # TODO :: It would be nice if we had a cross-ecosystem 'BUILD_TIME_LIMITED' env var we could use to

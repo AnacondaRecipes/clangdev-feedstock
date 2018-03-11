@@ -17,6 +17,7 @@ source:
 
 build:
   number: {{ build_number }}
+  string: {{ clang_variant }}_{{ build_number  }}
   skip: True  # [win and vc<14]
 
 requirements:
@@ -27,7 +28,7 @@ requirements:
     # Needed to unpack the source tarball
     - m2w64-xz  # [py27 and win64]
     # "compiling .pyc files" fails without this
-    - python >3
+    - python
     # Buildin with ninja on windows for parallel builds
     - ninja  # [win]
   host:
@@ -35,6 +36,7 @@ requirements:
     - libxml2
     - zlib
   run:
+    - libcxx >=4.0.1  # [osx]
     - llvmdev =={{ version }}
     - libxml2 2.9.*
 
