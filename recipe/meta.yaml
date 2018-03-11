@@ -18,6 +18,8 @@ source:
 build:
   number: {{ build_number }}
   string: {{ clang_variant }}_{{ build_number  }}
+  skip: true  # [py<36]
+    - '**/*.py'
   skip: True  # [win and vc<14]
 
 requirements:
@@ -27,8 +29,8 @@ requirements:
     - cmake >=3.4.3
     # Needed to unpack the source tarball
     - m2w64-xz  # [py27 and win64]
-    # "compiling .pyc files" fails without this
-    - python
+    # "compiling .pyc files" fails without this:
+    - python 3.6.*
     # Buildin with ninja on windows for parallel builds
     - ninja  # [win]
   host:
