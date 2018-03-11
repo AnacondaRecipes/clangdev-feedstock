@@ -79,7 +79,7 @@ source:
 
 build:
   number: {{ build_number }}
-  string: {{ clang_variant }}_{{ build_number  }}
+#  string: {{ clang_variant }}_{{ build_number  }}
   skip: true  # [py<36]
 
 {% if clang_variant == "cling" %}
@@ -101,7 +101,7 @@ requirements:
     - m2w64-xz  # [py27 and win]
 
     # "compiling .pyc files" fails without this:
-    - python
+    - python 3.6.*
 
   host:
     - llvmdev =={{ version }}
@@ -112,6 +112,7 @@ requirements:
 {% endif %}
 
   run:
+    - libcxx >=4.0.1  # [osx]
     - llvmdev =={{ version }}
     - vs2015_runtime  # [win]
 
