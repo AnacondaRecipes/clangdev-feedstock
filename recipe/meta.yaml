@@ -1,6 +1,5 @@
-{% set version = "7.0.0" %}
-{% set sha256 = "550212711c752697d2f82c648714a7221b1207fd9441543ff4aa9e3be45bba55" %}
-{% set clang_variant = "" %}
+{% set version = "7.0.1" %}
+{% set sha256 = "a45b62dde5d7d5fdcdfa876b0af92f164d434b06e9e89b5d0b1cbc65dfe3f418" %}
 
 {% set build_number = 0 %}
 
@@ -21,34 +20,19 @@ build:
   skip_compile_pyc:
     - '**/*.py'
 
-{% if clang_variant == "cling" %}
-  features:
-    - cling
-    - vc14    # [win and py36]
-{% else %}
-  features:   # [win and py36]
-    - vc14    # [win and py36]
-{% endif %}
-
 requirements:
   build:
-    - {{ compiler('c') }}    # [not osx]
-    - {{ compiler('cxx') }}  # [not osx]
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
     - cmake >=3.4.3
-
-    # Needed to unpack the source tarball
-    - m2w64-xz  # [py27 and win]
+    - make
 
   host:
     - llvmdev =={{ version }}
-    - libxml2
+    - libxml2  # [not linux]
     - zlib
-{% if clang_variant == "cling" %}
-    - cling-patches
-{% endif %}
 
   run:
-    - libcxx >=4.0.1  # [osx]
     - llvmdev =={{ version }}
     - vs2015_runtime  # [win]
 

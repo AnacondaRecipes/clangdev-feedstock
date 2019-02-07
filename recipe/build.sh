@@ -14,6 +14,21 @@ if [[ $(uname) == Darwin ]]; then
   CFLAG_SYSROOT="--sysroot ${SYSROOT_DIR}"
   # We do not want to build using the llvm of the bootstrap compilers
   rm ${SRC_DIR}/bootstrap/bin/llvm-config
+  # .. Maybe -DLLVM_CONFIG=${PREFIX}/bin/llvm-config instead?
+  # Avoid the build prefixes libclang.dylib getting linked instead of the host prefixes.
+  # This is because we add this path to the front of the linker search path so that
+  # libc++.dylib and libc++-abi.dylib get found there. This matters at present because
+  # the compilers are clang 4.0.1 while QtCreator needs clang >= 5
+  # Also remove the old libclang and libLLVM static libraries from the build prefix as they will
+  # be found instead of the newer ones in the host prefix. We may want to prevent these from
+  # existing in the first place. They are part of the macOS compilers.
+  if [[ ${target_platform} == osx-64 ]]; then
+    rm ${BUILD_PREFIX}/bin/llvm-config
+    mv ${BUILD_PREFIX}/lib/libclang.dylib ${BUILD_PREFIX}/lib/libclang.dylib.nothanks || true
+    rm -rf ${BUILD_PREFIX}/lib/libclang*.a || true
+    rm -rf ${BUILD_PREFIX}/lib/libLLVM*.a || true
+    rm -rf ${BUILD_PREFIX}/include/clang* || true
+  fi
 fi
 
 if [[ ${MACOSX_DEPLOYMENT_TARGET} == 10.9 ]]; then
