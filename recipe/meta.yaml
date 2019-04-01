@@ -1,7 +1,7 @@
 {% set version = "7.0.1" %}
 {% set sha256 = "a45b62dde5d7d5fdcdfa876b0af92f164d434b06e9e89b5d0b1cbc65dfe3f418" %}
 
-{% set build_number = 1000 %}
+{% set build_number = 0 %}
 
 package:
   name: clangdev
@@ -24,11 +24,9 @@ build:
 
 requirements:
   build:
-    - {{ compiler('c')    # [not osx]
+    - {{ compiler('c') }}   # [not osx]
     - {{ compiler('cxx') }}  # [not osx]
     - cmake >=3.4.3
-    # Needed to unpack the source tarball
-    - m2w64-xz  # [py27 and win64]
     # "compiling .pyc files" fails without this:
     - python 3.6.*
     # Buildin with ninja on windows for parallel builds
