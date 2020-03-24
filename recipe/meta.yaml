@@ -28,6 +28,7 @@ build:
 
 requirements:
   build:
+    - ccache
     - {{ compiler('cxx') }}
     - cmake >=3.4.3
     # Needed to unpack the source tarball

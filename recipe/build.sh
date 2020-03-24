@@ -2,9 +2,9 @@
 
 IFS='.' read -r -a PKG_VER_ARRAY <<< "${PKG_VERSION}"
 
-sed -i.bak "s/libLTO.dylib/libLTO.${PKG_VER_ARRAY[0]}.dylib/g" lib/Driver/ToolChains/Darwin.cpp
+sed -i.bak "s/libLTO.dylib/libLTO.${PKG_VER_ARRAY[0]}.dylib/g" lib/Driver/ToolChains/Darwin.cpp || true
 
-mkdir build
+mkdir build || true
 cd build
 
 declare -a EXTRA_ARGS=()
@@ -36,6 +36,8 @@ cmake \
   -DCMAKE_OBJCOPY:FILEPATH=${OBJCOPY} \
   -DCMAKE_OBJDUMP:FILEPATH=${OBJDUMP} \
   -DCMAKE_STRIP:FILEPATH=${STRIP} \
+  -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+  -DCMAKE_C_COMPILER_LAUNCHER=ccache \
   "${EXTRA_ARGS[@]}" \
   ..
 
