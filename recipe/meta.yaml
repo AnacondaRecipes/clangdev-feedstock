@@ -1,7 +1,6 @@
-{% set version = "10.0.0" %}
+{% set version = "10.0.1" %}
 {% set major_version = version.split(".")[0] %}
 {% set build_number = 0 %}
-# {% set cxx_compiler_version = "10.0.0" %}
 
 package:
   name: clang_packages
@@ -9,7 +8,7 @@ package:
 
 source:
   - url: https://github.com/llvm/llvm-project/releases/download/llvmorg-{{ version }}/clang-{{ version }}.src.tar.xz
-    sha256: 885b062b00e903df72631c5f98b9579ed1ed2790f74e5646b4234fa084eacb21
+    sha256: f99afc382b88e622c689b6d96cadfa6241ef55dca90e87fc170352e12ddb2b24
     patches:
       - patches/0001-Find-conda-gcc-installation.patch
       - patches/0002-Fix-sysroot-detection-for-linux.patch
@@ -20,7 +19,7 @@ source:
       #- patches/amd-roc-hcc-2.7.0.diff  # [variant == "hcc"]
     folder: .
   - url: https://github.com/llvm/llvm-project/releases/download/llvmorg-{{ version }}/clang-tools-extra-{{ version }}.src.tar.xz
-    sha256: acdf8cf6574b40e6b1dabc93e76debb84a9feb6f22970126b04d4ba18b92911c
+    sha256: d093782bcfcd0c3f496b67a5c2c997ab4b85816b62a7dd5b27026634ccf5c11a
     folder: tools/extra
 
 build:
@@ -29,6 +28,7 @@ build:
 
 requirements:
   build:
+    - ccache
     - {{ compiler('cxx') }}
     - cmake >=3.4.3
     # Needed to unpack the source tarball
@@ -39,12 +39,12 @@ requirements:
     - ninja  # [win]
     - make   # [unix]
   host:
-    - libcxx {{ cxx_compiler_version }}  # [osx]
+    # - libcxx {{ cxx_compiler_version }}  # [osx]
     - llvmdev =={{ version }}
 
 test:
   requires:
-    - {{ compiler('cxx') }}
+    # - {{ compiler('cxx') }}
     - cmake >=3.4.3
   files:
     - mytest.c
@@ -71,7 +71,7 @@ outputs:
       string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
     requirements:
       build:
-        - {{ compiler('cxx') }}
+        # - {{ compiler('cxx') }}
         - cmake >=3.4.3
         - ninja  # [win]
         - make   # [unix]
@@ -80,6 +80,7 @@ outputs:
         - {{ pin_subpackage("clangxx", exact=True) }}
         - {{ pin_subpackage("clang-tools", exact=True) }}
         - {{ pin_subpackage("libclang", exact=True) }}
+        - {{ pin_subpackage("libclang-cpp", exact=True) }}
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
       run:
@@ -87,8 +88,8 @@ outputs:
         - {{ pin_subpackage("clangxx", exact=True) }}
         - {{ pin_subpackage("clang-tools", exact=True) }}
         - {{ pin_subpackage("libclang", exact=True) }}
-       #  - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
-        - libcxx >=4.0.1
+        - {{ pin_subpackage("libclang-cpp", exact=True) }}
+        - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
         - llvmdev =={{ version }}
     test:
       commands:
@@ -96,6 +97,66 @@ outputs:
         - test -f "$PREFIX/lib/libclangAST.a"               # [unix]
         - if not exist %LIBRARY_INC%\\clang/Config/config.h exit 1   # [win]
         - if not exist %LIBRARY_LIB%\\clangAST.lib exit 1            # [win]
+
+  - name: libclang-cpp{{ major_version }}
+    script: install_libclang_cpp.sh  # [unix]
+    script: install_libclang_cpp.bat  # [win]
+    build:
+      track_features:
+        - hcc          # [variant=="hcc"]
+      string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
+      run_exports:
+        - {{ pin_subpackage("libclang-cpp" + major_version, max_pin="x.x") }}   # [unix]
+      skip: true  # [win]
+    requirements:
+      build:
+        # - {{ compiler('cxx') }}
+        - cmake >=3.4.3
+        - ninja  # [win]
+        - make   # [unix]
+      host:
+        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - llvmdev =={{ version }}
+        - llvm =={{ version }}
+      run:
+        - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
+    test:
+      commands:
+        - test ! -f "$PREFIX/lib/libclang-cpp.so"                           # [linux]
+        - test -f "$PREFIX/lib/libclang-cpp.so.{{ major_version }}"         # [linux]
+        - test ! -f "$PREFIX/lib/libclang-cpp.dylib"                        # [osx]
+        - test -f "$PREFIX/lib/libclang-cpp.{{ major_version }}.dylib"      # [osx]
+
+  - name: libclang-cpp
+    script: install_libclang_cpp.sh  # [unix]
+    script: install_libclang_cpp.bat  # [win]
+    build:
+      track_features:
+        - hcc          # [variant=="hcc"]
+      string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
+      {% if not win %}
+      run_exports:   # [unix]
+        - {{ pin_subpackage("libclang-cpp" + major_version, max_pin="x.x") }}   # [unix]
+      {% endif %}
+    requirements:
+      build:
+        # - {{ compiler('cxx') }}
+        - cmake >=3.4.3
+        - ninja  # [win]
+        - make   # [unix]
+      host:
+        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - llvmdev =={{ version }}
+        - llvm =={{ version }}
+        - {{ pin_subpackage("libclang-cpp" + major_version, exact=True) }}  # [unix]
+      run:
+        - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
+        - {{ pin_subpackage("libclang-cpp" + major_version, exact=True) }}  # [unix]
+    test:
+      commands:
+        - test -f "$PREFIX/lib/libclang-cpp.so"                     # [linux]
+        - test -f "$PREFIX/lib/libclang-cpp.dylib"                  # [osx]
+        - if exist %LIBRARY_BIN%\\libclang-cpp.dll exit 1           # [win]
 
   - name: libclang
     script: install_libclang.sh  # [unix]
@@ -106,7 +167,7 @@ outputs:
       string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
     requirements:
       build:
-        - {{ compiler('cxx') }}
+        # - {{ compiler('cxx') }}
         - cmake >=3.4.3
         - ninja  # [win]
         - make   # [unix]
@@ -133,7 +194,7 @@ outputs:
       string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
     requirements:
       build:
-        - {{ compiler('cxx') }}
+        # - {{ compiler('cxx') }}
         - libcxx                   # [osx]
         - cmake >=3.4.3
         - ninja  # [win]
@@ -142,8 +203,10 @@ outputs:
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
+        - {{ pin_compatible("libclang-cpp" + major_version, exact=True) }}  # [unix]
       run:
-        - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
+        - {{ pin_compatible("libcxx", max_pin=None) }}      # [osx]
+        - {{ pin_compatible("libclang-cpp" + major_version, exact=True) }}  # [unix]
       run_constrained:
         - clangdev {{ version }}
         - clangxx {{ version }}
@@ -194,7 +257,7 @@ outputs:
       build:
         # "compiling .pyc files" fails without this
         - python >3
-        - {{ compiler('cxx') }}
+        # - {{ compiler('cxx') }}
         - cmake >=3.4.3
         - ninja  # [win]
         - make   # [unix]
@@ -260,3 +323,4 @@ extra:
     - jakirkham
     - SylvainCorlay
     - timsnyder
+    - chrisburr

@@ -18,6 +18,8 @@ cmake -G "Ninja" ^
     -DLLVM_INCLUDE_DOCS=OFF ^
     -DLLVM_TEMPORARILY_ALLOW_OLD_TOOLCHAIN=ON ^
     -DLLVM_ENABLE_LIBXML2=OFF ^
+    -DCMAKE_C_COMPILER=%CC% ^
+    -DCMAKE_CXX_COMPILER=%CXX% ^
     %SRC_DIR%
 
 if errorlevel 1 exit 1
