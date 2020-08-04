@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+if [[ $(uname) == Darwin ]]; then
+  conda create -yp ${SRC_DIR}/clang-bootstrap clangxx_osx-64 clang_osx-64
+  conda activate --stack ${SRC_DIR}/clang-bootstrap
+fi

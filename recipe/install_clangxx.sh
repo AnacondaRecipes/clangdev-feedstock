@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x -e
 
 ln -s $PREFIX/bin/clang  $PREFIX/bin/clang++
 
