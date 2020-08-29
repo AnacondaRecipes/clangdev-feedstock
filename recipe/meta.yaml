@@ -1,6 +1,6 @@
 {% set version = "10.0.1" %}
 {% set major_version = version.split(".")[0] %}
-{% set build_number = 0 %}
+{% set build_number = 1 %}
 
 package:
   name: clang_packages
@@ -28,7 +28,7 @@ build:
 
 requirements:
   build:
-    - ccache
+    - {{ ccache('native') }}
     - {{ compiler('cxx') }}
     - cmake >=3.4.3
     # Needed to unpack the source tarball
@@ -44,7 +44,7 @@ requirements:
 
 test:
   requires:
-    # - {{ compiler('cxx') }}
+    - {{ compiler('cxx') }}
     - cmake >=3.4.3
   files:
     - mytest.c
@@ -140,6 +140,7 @@ outputs:
       {% endif %}
     requirements:
       build:
+        # Causes conda-build to complain. Probably should not. It's a build dep after all!
         # - {{ compiler('cxx') }}
         - cmake >=3.4.3
         - ninja  # [win]
