@@ -11,8 +11,15 @@ cd build
 
 declare -a EXTRA_ARGS=()
 if [[ $(uname) == Darwin ]]; then
+  __conda_setup="$(${SYS_PYTHON} -m conda 'shell.bash' 'hook' 2> /dev/null)"
+  if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+  fi
+  conda init
   conda create -yp ${PWD}/clang-bootstrap clangxx_osx-64
   PATH=${PATH}:${PWD}/clang-bootstrap/bin
+  CONDA_PREFIX=${PWD}/clang-bootstrap source ${PWD}/clang-bootstrap/etc/conda/activate.d/activate_clang_osx-64.sh
+  CONDA_PREFIX=${PWD}/clang-bootstrap source ${PWD}/clang-bootstrap/etc/conda/activate.d/activate_clangxx_osx-64.sh
 fi
 
 if [[ "$variant" == "hcc" ]]; then
@@ -35,8 +42,7 @@ cmake \
   -DCMAKE_C_COMPILER=${CC} \
   -DCMAKE_CXX_COMPILER=${CXX} \
   -DCMAKE_AR=${AR} \
-  -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-  -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+  -DCLANG_CCACHE_BUILD=yes \
   "${EXTRA_ARGS[@]}" \
   ..
 
