@@ -71,7 +71,7 @@ outputs:
       string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
     requirements:
       build:
-        # - {{ compiler('cxx') }}
+        - {{ compiler('cxx') }}
         - cmake >=3.4.3
         - ninja  # [win]
         - make   # [unix]
@@ -110,7 +110,7 @@ outputs:
       skip: true  # [win]
     requirements:
       build:
-        # - {{ compiler('cxx') }}
+        - {{ compiler('cxx') }}
         - cmake >=3.4.3
         - ninja  # [win]
         - make   # [unix]
@@ -140,8 +140,7 @@ outputs:
       {% endif %}
     requirements:
       build:
-        # Causes conda-build to complain. Probably should not. It's a build dep after all!
-        # - {{ compiler('cxx') }}
+        - {{ compiler('cxx') }}
         - cmake >=3.4.3
         - ninja  # [win]
         - make   # [unix]
@@ -168,7 +167,7 @@ outputs:
       string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
     requirements:
       build:
-        # - {{ compiler('cxx') }}
+        - {{ compiler('cxx') }}
         - cmake >=3.4.3
         - ninja  # [win]
         - make   # [unix]
@@ -195,7 +194,7 @@ outputs:
       string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
     requirements:
       build:
-        # - {{ compiler('cxx') }}
+        - {{ compiler('cxx') }}
         - libcxx                   # [osx]
         - cmake >=3.4.3
         - ninja  # [win]
@@ -258,7 +257,7 @@ outputs:
       build:
         # "compiling .pyc files" fails without this
         - python >3
-        # - {{ compiler('cxx') }}
+        - {{ compiler('cxx') }}
         - cmake >=3.4.3
         - ninja  # [win]
         - make   # [unix]
