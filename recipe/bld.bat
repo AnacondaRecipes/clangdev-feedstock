@@ -1,5 +1,6 @@
-
-bash -c "find . -type f -exec touch {} +"
+echo "INFO :: Touching all source files due to time-skew"
+bash -c "find . -type f -exec touch {} + > /dev/null"
+echo "INFO :: All touched"
 
 mkdir build
 cd build
