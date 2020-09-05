@@ -84,7 +84,7 @@ outputs:
         - {{ pin_subpackage("clang-tools", exact=True) }}
         - {{ pin_subpackage("libclang", exact=True) }}
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        # - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
       run:
         - {{ pin_subpackage("clang", exact=True) }}
@@ -118,7 +118,7 @@ outputs:
         - ninja  # [win]
         - make   # [unix]
       host:
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        # - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
       run:
@@ -148,7 +148,7 @@ outputs:
         - ninja  # [win]
         - make   # [unix]
       host:
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        # - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - {{ pin_subpackage("libclang-cpp" + major_version, exact=True) }}  # [unix]
@@ -175,7 +175,7 @@ outputs:
         - ninja  # [win]
         - make   # [unix]
       host:
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        # - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - {{ pin_subpackage("clang", exact=True) }}
@@ -203,7 +203,7 @@ outputs:
         - ninja  # [win]
         - make   # [unix]
       host:
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        # - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - {{ pin_compatible("libclang-cpp" + major_version, exact=True) }}  # [unix]
@@ -268,7 +268,7 @@ outputs:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("clangxx", exact=True) }}
         - {{ pin_subpackage("libclang", exact=True) }}
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        # - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
       run:
