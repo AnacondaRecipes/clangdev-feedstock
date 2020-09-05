@@ -36,6 +36,9 @@ requirements:
     # "compiling .pyc files" fails without this
     - python >3
     # Building with ninja on windows for parallel builds
+    - m2-filesystem  # [win]
+    - m2-coreutils  # [win]
+    - m2-bash  # [win]
     - ninja  # [win]
     - make   # [unix]
   host:
