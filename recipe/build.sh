@@ -1,37 +1,32 @@
 #!/bin/bash
 
-set -x
-
 IFS='.' read -r -a PKG_VER_ARRAY <<< "${PKG_VERSION}"
 
 sed -i.bak "s/libLTO.dylib/libLTO.${PKG_VER_ARRAY[0]}.dylib/g" lib/Driver/ToolChains/Darwin.cpp
 
-mkdir build || true
-cd build
-
-declare -a EXTRA_ARGS=()
-# if [[ $(uname) == Darwin ]]; then
-#   __conda_setup="$(${SYS_PYTHON} -m conda 'shell.bash' 'hook' 2> /dev/null)"
-#   if [ $? -eq 0 ]; then
-#     eval "$__conda_setup"
-#   fi
-#   conda init
-#   conda create -yp ${PWD}/clang-bootstrap clangxx_osx-64
-#   PATH=${PATH}:${PWD}/clang-bootstrap/bin
-#   CONDA_PREFIX=${PWD}/clang-bootstrap source ${PWD}/clang-bootstrap/etc/conda/activate.d/activate_clang_osx-64.sh
-#   CONDA_PREFIX=${PWD}/clang-bootstrap source ${PWD}/clang-bootstrap/etc/conda/activate.d/activate_clangxx_osx-64.sh
-# fi
-
 if [[ "$variant" == "hcc" ]]; then
-  EXTRA_ARGS+=("-DKALMAR_BACKEND=HCC_BACKEND_AMDGPU")
-  EXTRA_ARGS+=("-DHCC_VERSION_STRING=2.7-19365-24e69cd8-24e69cd8-24e69cd8")
-  EXTRA_ARGS+=("-DHCC_VERSION_MAJOR=2" "-DHCC_VERSION_MINOR=7" "-DHCC_VERSION_PATCH=19365")
-  EXTRA_ARGS+=("-DKALMAR_SDK_COMMIT=24e69cd8" "-DKALMAR_FRONTEND_COMMIT=24e69cd8" "-DKALMAR_BACKEND_COMMIT=24e69cd8")
+  CMAKE_ARGS="$CMAKE_ARGS -DKALMAR_BACKEND=HCC_BACKEND_AMDGPU -DHCC_VERSION_STRING=2.7-19365-24e69cd8-24e69cd8-24e69cd8"
+  CMAKE_ARGS="$CMAKE_ARGS -DHCC_VERSION_MAJOR=2 -DHCC_VERSION_MINOR=7 -DHCC_VERSION_PATCH=19365"
+  CMAKE_ARGS="$CMAKE_ARGS -DKALMAR_SDK_COMMIT=24e69cd8 -DKALMAR_FRONTEND_COMMIT=24e69cd8 -DKALMAR_BACKEND_COMMIT=24e69cd8"
 fi
 
+if [[ "$CONDA_BUILD_CROSS_COMPILATION" == "1" ]]; then
+  CMAKE_ARGS="${CMAKE_ARGS} -DLLVM_TABLEGEN_EXE=$BUILD_PREFIX/bin/llvm-tblgen -DNATIVE_LLVM_DIR=$BUILD_PREFIX/lib/cmake/llvm"
+  CMAKE_ARGS="${CMAKE_ARGS} -DCROSS_TOOLCHAIN_FLAGS_NATIVE=-DCMAKE_C_COMPILER=$CC_FOR_BUILD;-DCMAKE_CXX_COMPILER=$CXX_FOR_BUILD;-DCMAKE_C_FLAGS=-O2;-DCMAKE_CXX_FLAGS=-O2;-DCMAKE_EXE_LINKER_FLAGS=;-DCMAKE_MODULE_LINKER_FLAGS=;-DCMAKE_SHARED_LINKER_FLAGS=;-DCMAKE_STATIC_LINKER_FLAGS=;-DZLIB_ROOT=$BUILD_PREFIX"
+else
+  rm -rf $BUILD_PREFIX/bin/llvm-tblgen
+fi
+
+if [[ "$target_platform" == osx* ]]; then
+  export CXXFLAGS="$CXXFLAGS -DTARGET_OS_OSX=1"
+fi
+
+mkdir build
+cd build
+
 cmake \
-  -DCMAKE_INSTALL_PREFIX=${PREFIX} \
-  -DCMAKE_PREFIX_PATH=${PREFIX} \
+  -DCMAKE_INSTALL_PREFIX=$PREFIX \
+  -DCMAKE_PREFIX_PATH=$PREFIX \
   -DCMAKE_BUILD_TYPE=Release \
   -DLLVM_ENABLE_RTTI=ON \
   -DCLANG_INCLUDE_TESTS=OFF \
@@ -39,11 +34,9 @@ cmake \
   -DLLVM_INCLUDE_TESTS=OFF \
   -DLLVM_INCLUDE_DOCS=OFF \
   -DLLVM_ENABLE_LIBXML2=OFF \
-  -DCMAKE_C_COMPILER=${CC} \
-  -DCMAKE_CXX_COMPILER=${CXX} \
-  -DCMAKE_AR=${AR} \
-  -DCLANG_CCACHE_BUILD=yes \
-  "${EXTRA_ARGS[@]}" \
+  -DCMAKE_AR=$AR \
+  -DPython3_EXECUTABLE=${BUILD_PREFIX}/bin/python \
+  $CMAKE_ARGS \
   ..
 
-make -j${CPU_COUNT} ${VERBOSE_CM} 2>&1 | tee ${SRC_DIR}/build.log
+make -j${CPU_COUNT}

@@ -1,13 +1,11 @@
-pushd %SRC_DIR%\build
-  ninja install
-popd
+cd %SRC_DIR%\build
+ninja install
+cd %LIBRARY_PREFIX%
+rmdir /s /q lib libexec share include
 
-pushd %LIBRARY_PREFIX%
-  rmdir /s /q lib libexec share include
-  move bin bin2
+move bin bin2
 
-  mkdir bin
+mkdir bin
 
-  move bin2\libclang.dll bin\
-  rmdir /s /q bin2
-popd
+move bin2\libclang.dll bin\
+rmdir /s /q bin2
