@@ -21,6 +21,12 @@ if [[ "$target_platform" == osx* ]]; then
   export CXXFLAGS="$CXXFLAGS -DTARGET_OS_OSX=1"
 fi
 
+if [[ ${target_platform} =~ osx-.* ]]; then
+    CMAKE_ARGS+=(-DCMAKE_C_FLAGS=-mlinker-version=305)
+    CMAKE_ARGS+=(-DCMAKE_CXX_FLAGS=-mlinker-version=305)
+    LDFLAGS="${LDFLAGS} -mlinker-version=305"
+fi
+
 mkdir build
 cd build
 
