@@ -49,7 +49,8 @@ requirements:
     # Building with ninja on windows for parallel builds
     - ninja  # [win]
     - make   # [unix]
-    - llvmdev =={{ version }}    # [build_platform != target_platform]
+    - patch     # [not win]
+    - m2-patch  # [win]
   host:
     - libcxx {{ cxx_compiler_version }}  # [osx]
     - llvmdev =={{ version }}
