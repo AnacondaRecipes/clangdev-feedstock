@@ -1,25 +1,18 @@
-cxx_compiler:
-  - clang_bootstrap  # [osx]
-  - gxx              # [linux]
-  - vs2017           # [win]
-
 c_compiler:
   - clang_bootstrap  # [osx]
   - gcc              # [linux]
-  - vs2017           # [win]
+  - vs2019           # [win]
+cxx_compiler:
+  - clang_bootstrap  # [osx]
+  - gxx              # [linux]
+  - vs2019           # [win]
 
-vc:
-  - 14
-
-c_compiler_version:     # [osx]
-  - "*"                 # [osx]
-
-cxx_compiler_version:   # [osx or (linux and ppc64le)]
-  - "*"                 # [osx]
-  # linking error with gcc 9
-  - 8                   # [linux and ppc64le]
+# Starting from LLVM 14, the ABI of libclang doesn't necessarily
+# match the major version anymore - cf. #170 and
+# https://github.com/llvm/llvm-project/issues/54004
+libclang_soversion:
+  - 13
 
 variant:
   - default
   # - hcc   # [linux]
-
