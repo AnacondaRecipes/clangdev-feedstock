@@ -117,6 +117,7 @@ outputs:
 
   - name: libclang-cpp{{ minor_aware_ext }}
     script: install_libclang_cpp.sh  # [unix]
+    script: install_libclang_cpp.bat  # [win]
     build:
       track_features:
         - hcc          # [variant=="hcc"]
