@@ -334,7 +334,7 @@ outputs:
         - mytest.cxx
       commands:
         - clang++ --version
-        - clang++ -v -c mytest.cxx
+        - clang++ -v -c mytest.cxx  # [not (linux and s390x)]
 
   - name: clang-format-{{ major_version }}
     script: install_clang_format.sh  # [unix]
