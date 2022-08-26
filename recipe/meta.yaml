@@ -69,7 +69,7 @@ test:
     - $PREFIX/bin/clang++ --version  # [unix]
     - $PREFIX/bin/clang-check --version  # [unix]
 
-    - $PREFIX/bin/clang -v -c mytest.c      # [unix]
+    - $PREFIX/bin/clang -v -c mytest.c      # [unix and not s390x]
     - '%LIBRARY_BIN%/clang -v -c mytest.c'  # [win]
 
     - if not exist %LIBRARY_INC%\\clang\\Lex\\Lexer.h exit 1  # [win]
