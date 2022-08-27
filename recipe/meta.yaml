@@ -148,6 +148,7 @@ outputs:
   - name: libclang-cpp
     # note that this is just an empty wrapper on windows
     script: install_libclang_cpp.sh  # [unix]
+    script: install_libclang_cpp.bat  # [win]
     build:
       track_features:
         - hcc          # [variant=="hcc"]

@@ -1,1 +1,1 @@
-echo "No libclang_cpp package on Windows"
+echo "libclang_cpp package on Windows is an empty wrapper"
