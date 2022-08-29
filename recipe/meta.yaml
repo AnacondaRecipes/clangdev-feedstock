@@ -38,7 +38,7 @@ source:
 
 build:
   number: {{ build_number }}
-  skip: true  # [(win and vc<14) or variant=="hcc"i or (linux and s390x)]
+  skip: true  # [(win and vc<14) or variant=="hcc" or (linux and s390x)]
 
 requirements:
   build:
