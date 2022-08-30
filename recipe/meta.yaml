@@ -456,8 +456,8 @@ outputs:
   - name: python-clang
     build:
       string: {{ variant }}_py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ build_number }}
-    script: build_python_bindings.sh
-    script: build_python_bindings.bat
+    script: build_python_bindings.sh   # [unix]
+    script: build_python_bindings.bat  # [win]
     skip: True  # [py<37]
 
     requirements:
