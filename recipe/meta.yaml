@@ -39,6 +39,7 @@ source:
 build:
   number: {{ build_number }}
   skip: true  # [(win and vc<14) or variant=="hcc" or (linux and s390x)]
+  skip: true  # [py<30]
 
 requirements:
   build:
@@ -47,7 +48,7 @@ requirements:
     # Needed to unpack the source tarball
     - m2w64-xz  # [win]
     # "compiling .pyc files" fails without this
-    - python >3
+    - python
     # Building with ninja on windows for parallel builds
     - ninja  # [win]
     - make   # [unix]
@@ -261,6 +262,9 @@ outputs:
       track_features:
         - hcc          # [variant=="hcc"]
       string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
+      missing_dso_whitelist:  # [win]
+       - $RPATH/charset.dll   # [win]
+       - $RPATH/iconv.dll     # [win]
     requirements:
       build:
         - {{ compiler('cxx') }}
@@ -349,7 +353,7 @@ outputs:
     requirements:
       build:
         # "compiling .pyc files" fails without this
-        - python >3
+        - python
         - {{ compiler('cxx') }}
         - cmake >=3.4.3
         - ninja  # [win]
@@ -385,7 +389,7 @@ outputs:
     requirements:
       build:
         # "compiling .pyc files" fails without this
-        - python >3
+        - python
         - {{ compiler('cxx') }}
         - cmake >=3.4.3
         - ninja  # [win]
@@ -421,7 +425,7 @@ outputs:
     requirements:
       build:
         # "compiling .pyc files" fails without this
-        - python >3
+        - python
         - {{ compiler('cxx') }}
         - cmake >=3.4.3
         - ninja  # [win]
@@ -453,6 +457,7 @@ outputs:
     build:
       string: {{ variant }}_py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ build_number }}
     script: build_python_bindings.sh
+    script: build_python_bindings.bat
     skip: True  # [py<37]
 
     requirements:
