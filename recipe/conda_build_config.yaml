@@ -11,7 +11,7 @@ cxx_compiler:
 # match the major version anymore - cf. #170 and
 # https://github.com/llvm/llvm-project/issues/54004
 libclang_soversion:
-  - 13
+  - '13'
 
 variant:
   - default
