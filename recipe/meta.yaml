@@ -1,10 +1,14 @@
-{% set version = "14.0.6" %}
+{% set version = "17.0.6" %}
 {% set major_version = version.split(".")[0] %}
-{% set build_number = 1 %}
+{% set build_number = 2 %}
 
 {% set minor_aware_ext = major_version %}
 {% if version.split(".")[1] | int > 0 %}
-{% set minor_aware_ext = major_version + "." + version.split(".")[1] %}
+{% set minor_aware_ext = major_version ~ "." ~ version.split(".")[1] %}
+{% elif version.split(".")[-1].startswith("rc") %}
+{% set minor_aware_ext = major_version ~ "rc" %}
+{% elif version.split(".")[-1] == "dev0" %}
+{% set minor_aware_ext = major_version ~ "git" %}
 {% endif %}
 
 {% if libclang_soversion is not defined %}
@@ -17,20 +21,20 @@ package:
 
 source:
   - url: https://github.com/llvm/llvm-project/releases/download/llvmorg-{{ version.replace(".rc", "-rc") }}/llvm-project-{{ version.replace(".rc", "rc") }}.src.tar.xz
-    sha256: 8b3cfd7bc695bd6cea0f37f53f0981f34f87496e79e2529874fd03a2f9dd3a8a
+    sha256: 58a8818c60e6627064f312dbf46c02d9949956558340938b71cf731ad8bc0813
     patches:
-      - patches/0001-Find-conda-gcc-installation.patch
-      - patches/0002-Fix-sysroot-detection-for-linux.patch
-      - patches/0003-clang-add-conda-specific-env-var-CONDA_BUILD_SYSROOT.patch
-      - patches/0004-Fix-normalizeProgramName-s-handling-of-dots-outside-.patch
-      - patches/0005-Set-VERSION-in-osx-as-well.patch
-      - patches/0006-Fix-crosscompiling-LLVM-tools.patch
+      - patches/0001-Fix-sysroot-detection-for-linux.patch
+      - patches/0002-clang-add-conda-specific-env-var-CONDA_BUILD_SYSROOT.patch
+      - patches/0003-Fix-normalizeProgramName-s-handling-of-dots-outside-.patch
+      - patches/0004-Set-VERSION-in-osx-as-well.patch
+      - patches/0005-Fix-crosscompiling-LLVM-tools.patch
       # Disable -Werror,-Wundef-prefix=TARGET_OS as they are not yet defined in the 10.9 SDK used for osx-64
       # Only enable it for TARGET_OS_OSX.
-      - patches/0007-Only-error-on-undefined-TARGET_OS_OSX.patch  # [osx and x86_64]
-      - patches/0008-set-libclang-SOVERSION-unconditionally.patch
+      - patches/0006-Only-error-on-undefined-TARGET_OS_OSX.patch  # [osx and x86_64]
+      - patches/0007-set-libclang-SOVERSION-unconditionally.patch
+      - patches/0008-Make-PIE-default-on-macOS-too.patch
+      # check out git history before LLVM 16 for these patches
       # - patches/amd-roc-2.7.0.diff   # [variant != "hcc"]
-      - patches/llvm_winpython.diff
       # - patches/amd-roc-hcc-2.7.0.diff  # [variant == "hcc"]
     # name folder for easier deletion; we do the equivalent of downloading
     # the subproject sources, so the work folder then has clang in it;
@@ -39,40 +43,41 @@ source:
 
 build:
   number: {{ build_number }}
-  skip: true  # [(win and vc<14) or variant=="hcc" or (linux and s390x)]
-  skip: true  # [py<30]
-  # trigger: 0
+  skip: true  # [variant == "hcc"]
 
 requirements:
   build:
     - {{ compiler('cxx') }}
-    - cmake >=3.4.3
+    - cmake
+    - ninja  # [win]
+    - make   # [unix]
     # Needed to unpack the source tarball
     - m2w64-xz  # [win]
     # "compiling .pyc files" fails without this
-    - python
-    # Building with ninja on windows for parallel builds
-    - ninja  # [win]
-    - make   # [unix]
-    - patch     # [not win]
-    - m2-patch  # [win]
+    - python >3
+    - llvmdev =={{ version }}    # [build_platform != target_platform]
+    - libxml2                    # [build_platform != target_platform]
+    - zlib                       # [build_platform != target_platform]
+    - zstd                       # [build_platform != target_platform]
   host:
     - libcxx {{ cxx_compiler_version }}  # [osx]
     - llvmdev =={{ version }}
-    - zlib 1.2.13                        # [linux]
+    - libxml2
+    - zlib
+    - zstd
 
 test:
   requires:
     - {{ compiler('cxx') }}
-    - cmake >=3.4.3
+    - cmake
   files:
     - mytest.c
   commands:
-    - $PREFIX/bin/clang --version  # [unix]
-    - $PREFIX/bin/clang++ --version  # [unix]
+    - $PREFIX/bin/clang --version        # [unix]
+    - $PREFIX/bin/clang++ --version      # [unix]
     - $PREFIX/bin/clang-check --version  # [unix]
 
-    - $PREFIX/bin/clang -v -c mytest.c      # [unix and not s390x]
+    - $PREFIX/bin/clang -v -c mytest.c      # [unix]
     - '%LIBRARY_BIN%/clang -v -c mytest.c'  # [win]
 
     - if not exist %LIBRARY_INC%\\clang\\Lex\\Lexer.h exit 1  # [win]
@@ -88,21 +93,30 @@ outputs:
       track_features:
         - hcc          # [variant=="hcc"]
       string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
+      ignore_run_exports_from:
+        # the build fails if it doesn't find the following, but it's not used
+        - zlib     # [unix]
+        - libxml2  # [unix]
+        - zstd     # [unix]
     requirements:
       build:
         - {{ compiler('cxx') }}
-        - cmake >=3.4.3
+        - cmake
         - ninja  # [win]
         - make   # [unix]
+        - llvmdev =={{ version }}    # [build_platform != target_platform]
       host:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("clangxx", exact=True) }}
         - {{ pin_subpackage("clang-tools", exact=True) }}
         - {{ pin_subpackage("libclang", exact=True) }}
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
+        # Use the same requirements as the top-level requirements
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
-        - zlib 1.2.13                        # [linux]
+        - libxml2
+        - zlib
+        - zstd
       run:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("clangxx", exact=True) }}
@@ -120,25 +134,36 @@ outputs:
 
   - name: libclang-cpp{{ minor_aware_ext }}
     script: install_libclang_cpp.sh  # [unix]
-    script: install_libclang_cpp.bat  # [win]
+    files:
+      - lib/libclang-cpp.so.{{ minor_aware_ext }}     # [linux]
+      - lib/libclang-cpp.{{ minor_aware_ext }}.dylib  # [osx]
     build:
+      skip: true  # [win]
       track_features:
         - hcc          # [variant=="hcc"]
       string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
       run_exports:
-        - {{ pin_subpackage("libclang-cpp" + minor_aware_ext, max_pin="x.x") }}   # [unix]
-      skip: true  # [win]
+        - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, max_pin="x.x") }}   # [unix]
+      ignore_run_exports_from:
+        # the build fails if it doesn't find the following, but it's not used
+        - zlib     # [unix]
+        - libxml2  # [unix]
+        - zstd     # [unix]
     requirements:
       build:
         - {{ compiler('cxx') }}
-        - cmake >=3.4.3
+        - cmake
         - ninja  # [win]
         - make   # [unix]
+        - llvmdev =={{ version }}    # [build_platform != target_platform]
       host:
+        - llvm =={{ version }}
+        # Use the same requirements as the top-level requirements
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
-        - llvm =={{ version }}
-        - zlib 1.2.13                        # [linux]
+        - libxml2
+        - zlib
+        - zstd
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
     test:
@@ -151,28 +176,39 @@ outputs:
   - name: libclang-cpp
     # note that this is just an empty wrapper on windows
     script: install_libclang_cpp.sh  # [unix]
-    script: install_libclang_cpp.bat  # [win]
+    files:   # [unix]
+      - lib/libclang-cpp.so     # [linux]
+      - lib/libclang-cpp.dylib  # [osx]
     build:
       track_features:
         - hcc          # [variant=="hcc"]
       string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
       run_exports:   # [unix]
-        - {{ pin_subpackage("libclang-cpp" + minor_aware_ext, max_pin="x.x") }}   # [unix]
+        - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, max_pin="x.x") }}   # [unix]
+      ignore_run_exports_from:
+        # the build fails if it doesn't find the following, but it's not used
+        - zlib     # [unix]
+        - libxml2  # [unix]
+        - zstd     # [unix]
     requirements:
       build:
         - {{ compiler('cxx') }}
-        - cmake >=3.4.3
+        - cmake
         - ninja  # [win]
         - make   # [unix]
+        - llvmdev =={{ version }}    # [build_platform != target_platform]
       host:
+        - llvm =={{ version }}
+        - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
+        # Use the same requirements as the top-level requirements
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
-        - llvm =={{ version }}
-        - zlib 1.2.13                        # [linux]
-        - {{ pin_subpackage("libclang-cpp" + minor_aware_ext, exact=True) }}  # [unix]
+        - libxml2
+        - zlib
+        - zstd
       run:
-        - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
-        - {{ pin_subpackage("libclang-cpp" + minor_aware_ext, exact=True) }}  # [unix]
+        - {{ pin_compatible("libcxx", max_pin=None) }}                        # [osx]
+        - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
     test:
       commands:
         - test -f "$PREFIX/lib/libclang-cpp.so"                     # [linux]
@@ -182,6 +218,10 @@ outputs:
   - name: libclang{{ libclang_soversion }}
     script: install_libclang.sh  # [unix]
     script: install_libclang.bat  # [win]
+    files:
+      - Library/bin/libclang-13.dll  # [win]
+      - lib/libclang.so.13           # [linux]
+      - lib/libclang.13.dylib        # [osx]
     build:
       track_features:
         - hcc          # [variant=="hcc"]
@@ -189,19 +229,28 @@ outputs:
       run_exports:
         # note that the name (e.g. libclang13) does not necessarily
         # match the version lower bound (e.g. >=14.0.0)
-        - {{ pin_subpackage("libclang" + libclang_soversion, max_pin="x.x") }}
+        - {{ pin_subpackage("libclang" ~ libclang_soversion, max_pin=None) }}
+      ignore_run_exports_from:
+        # the build fails if it doesn't find the following, but it's not used
+        - libxml2
+        - zlib     # [unix]
+        - zstd     # [unix]
     requirements:
       build:
         - {{ compiler('cxx') }}
-        - cmake >=3.4.3
+        - cmake
         - ninja                      # [win]
         - make                       # [unix]
+        - llvmdev =={{ version }}    # [build_platform != target_platform]
       host:
-        - libcxx {{ cxx_compiler_version }}             # [osx]
-        - llvmdev =={{ version }}
         - llvm =={{ version }}
-        - zlib 1.2.13                                   # [linux or win]
         - {{ pin_subpackage("clang", exact=True) }}
+        # Use the same requirements as the top-level requirements
+        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - llvmdev =={{ version }}
+        - libxml2
+        - zlib
+        - zstd
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
     test:
@@ -217,16 +266,25 @@ outputs:
         - if exist %LIBRARY_BIN%\\libclang.dll exit 1                      # [win]
         - if exist %LIBRARY_LIB%\\libclang.lib exit 1                      # [win]
 
-        # absence of major version if soversion is different
         {% if libclang_soversion != major_version %}
+        # absence of major version if soversion is different
         - test ! -f "$PREFIX/lib/libclang.so.{{ major_version }}"          # [linux]
         - test ! -f "$PREFIX/lib/libclang.{{ major_version }}.dylib"       # [osx]
         - if exist %LIBRARY_BIN%\\libclang-{{ major_version }}.dll exit 1  # [win]
+
+        # same for full version (i.e. with major that doesn't match soversion)
+        - test ! -f "$PREFIX/lib/libclang.so.{{ version }}"                # [linux]
+        - test ! -f "$PREFIX/lib/libclang.{{ version }}.dylib"             # [osx]
+        - if exist %LIBRARY_BIN%\\libclang-{{ version }}.dll exit 1        # [win]
         {% endif %}
 
   - name: libclang
     script: install_libclang.sh  # [unix]
     script: install_libclang.bat  # [win]
+    files:
+      - Library/lib/libclang.lib  # [win]
+      - lib/libclang.so           # [linux]
+      - lib/libclang.dylib        # [osx]
     build:
       track_features:
         - hcc          # [variant=="hcc"]
@@ -234,23 +292,32 @@ outputs:
       run_exports:
         # note that the name (e.g. libclang13) does not necessarily
         # match the version lower bound (e.g. >=14.0.0)
-        - {{ pin_subpackage("libclang" + libclang_soversion, max_pin=None) }}
+        - {{ pin_subpackage("libclang" ~ libclang_soversion, max_pin=None) }}
+      ignore_run_exports_from:
+        # the build fails if it doesn't find the following, but it's not used
+        - zlib     # [unix]
+        - libxml2  # [unix]
+        - zstd     # [unix]
     requirements:
       build:
         - {{ compiler('cxx') }}
-        - cmake >=3.4.3
+        - cmake
         - ninja                      # [win]
         - make                       # [unix]
+        - llvmdev =={{ version }}    # [build_platform != target_platform]
       host:
-        - libcxx {{ cxx_compiler_version }}                           # [osx]
-        - llvmdev =={{ version }}
         - llvm =={{ version }}
-        - zlib 1.2.13                                                 # [linux or win]
         - {{ pin_subpackage("clang", exact=True) }}
-        - {{ pin_subpackage("libclang" + libclang_soversion, exact=True) }}
+        - {{ pin_subpackage("libclang" ~ libclang_soversion, exact=True) }}
+        # Use the same requirements as the top-level requirements
+        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - llvmdev =={{ version }}
+        - libxml2
+        - zlib
+        - zstd
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                # [osx]
-        - {{ pin_subpackage("libclang" + libclang_soversion, exact=True) }}
+        - {{ pin_subpackage("libclang" ~ libclang_soversion, exact=True) }}
     test:
       commands:
         - test -f "$PREFIX/lib/libclang.so"                # [linux]
@@ -260,31 +327,40 @@ outputs:
   - name: clang-{{ major_version }}
     script: install_clang.sh  # [unix]
     script: install_clang.bat  # [win]
+    files:
+      - lib/clang                                  # [unix]
+      - bin/clang-{{ major_version }}              # [unix]
+      - Library/lib/clang                          # [win]
+      - Library/bin/clang-{{ major_version }}.exe  # [win]
     build:
       track_features:
         - hcc          # [variant=="hcc"]
       string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
-      missing_dso_whitelist:  # [win]
-       - $RPATH/charset.dll   # [win]
-       - $RPATH/iconv.dll     # [win]
+      ignore_run_exports_from:
+        # the build fails if it doesn't find the following, but it's not used
+        - libxml2
+        - zlib     # [unix]
+        - zstd     # [unix]
     requirements:
       build:
         - {{ compiler('cxx') }}
-        - libcxx                             # [osx]
-        - cmake >=3.4.3
+        - cmake
         - ninja                              # [win]
         - make                               # [unix]
+        - libcxx                             # [osx]
+        - llvmdev =={{ version }}            # [build_platform != target_platform]
       host:
+        - llvm =={{ version }}
+        - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
+        # Use the same requirements as the top-level requirements
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
-        - llvm =={{ version }}
-        - zlib 1.2.13                        # [linux or win]
-        - {{ pin_subpackage("libclang-cpp" + minor_aware_ext, exact=True) }}  # [unix]
-        - {{ pin_subpackage("libclang-cpp", exact=True) }}  # [win]
+        - libxml2
+        - zlib
+        - zstd
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                        # [osx]
-        - {{ pin_subpackage("libclang-cpp" + minor_aware_ext, exact=True) }}  # [unix]
-        - {{ pin_subpackage("libclang-cpp", exact=True) }}  # [win]
+        - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
       run_constrained:
         - clangdev {{ version }}
         - clangxx {{ version }}
@@ -303,19 +379,31 @@ outputs:
         - test -f "$PREFIX/lib/libclang-cpp.so.{{ minor_aware_ext }}"     # [linux]
         - test ! -f "$PREFIX/lib/libclang-cpp.dylib"                      # [osx]
         - test -f "$PREFIX/lib/libclang-cpp.{{ minor_aware_ext }}.dylib"  # [osx]
-        - test -f "$PREFIX/lib/clang/{{ '.'.join(version.split('.')[:3]) }}/include/stdatomic.h"                    # [unix]
-        - if not exist %LIBRARY_LIB%\\clang\\{{ '.'.join(version.split('.')[:3]) }}\\include\\stdatomic.h exit 1    # [win]
+        - test -f "$PREFIX/lib/clang/{{ version.split('.')[0] }}/include/stdatomic.h"                    # [unix]
+        - if not exist %LIBRARY_LIB%\\clang\\{{ version.split('.')[0] }}\\include\\stdatomic.h exit 1    # [win]
 
   - name: clang
     script: install_clang_symlinks.sh  # [unix]
     script: install_clang_symlinks.bat  # [win]
+    build:
+      ignore_run_exports_from:
+        # the build fails if it doesn't find the following, but it's not used
+        - libxml2
+        - zlib     # [unix]
+        - zstd     # [unix]
     requirements:
       host:
-        - zlib 1.2.13                     # [win]
-        - gcc_impl_{{ target_platform }}  # [linux]
         - {{ pin_subpackage("clang-" ~ major_version, exact=True) }}
+        # Use the same requirements as the top-level requirements
+        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - llvmdev =={{ version }}
+        - libxml2
+        - zlib
+        - zstd
       run:
-        - gcc_impl_{{ target_platform }}  # [linux]
+        - binutils_impl_{{ target_platform }}  # [linux]
+        - sysroot_{{ target_platform }}        # [linux]
+        - libgcc-devel_{{ target_platform }}   # [linux]
         - {{ pin_subpackage("clang-" ~ major_version, exact=True) }}
     test:
       commands:
@@ -330,11 +418,23 @@ outputs:
       track_features:
         - hcc          # [variant=="hcc"]
       string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
+      ignore_run_exports_from:
+        # the build fails if it doesn't find the following, but it's not used
+        - libxml2
+        - zlib     # [unix]
+        - zstd     # [unix]
     requirements:
       host:
         - zlib 1.2.13   # [win]
         - {{ pin_subpackage("clang", exact=True) }}
+        # Use the same requirements as the top-level requirements
+        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - llvmdev =={{ version }}
+        - libxml2
+        - zlib
+        - zstd
       run:
+        - libstdcxx-devel_{{ target_platform }}  # [linux]
         - {{ pin_subpackage("clang", exact=True) }}
     test:
       requires:
@@ -343,76 +443,96 @@ outputs:
         - mytest.cxx
       commands:
         - clang++ --version
-        - clang++ -v -c mytest.cxx  # [not (linux and s390x)]
+        - clang++ -v -c mytest.cxx
+        - unset CONDA_BUILD_SYSROOT   # [unix]
+        - set "CONDA_BUILD_SYSROOT="  # [win]
+        - clang++ -v -c mytest.cxx
 
   - name: clang-format-{{ major_version }}
     script: install_clang_format.sh  # [unix]
-    script: install_clang_format.bat  # [win]
+    files:
+      - bin/clang-format-{{ major_version }}                # [unix]
     build:
       track_features:
         - hcc          # [variant=="hcc"]
       string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
       # for windows, use the clang-format package.
       skip: true  # [win]
+      ignore_run_exports_from:
+        # the build fails if it doesn't find the following, but it's not used
+        - zlib     # [unix]
+        - libxml2  # [unix]
+        - zstd     # [unix]
     requirements:
       build:
         # "compiling .pyc files" fails without this
         - python
         - {{ compiler('cxx') }}
-        - cmake >=3.4.3
-        - ninja  # [win]
+        - cmake
         - make   # [unix]
+        - llvmdev =={{ version }}    # [build_platform != target_platform]
       host:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("clangxx", exact=True) }}
         - {{ pin_subpackage("libclang", exact=True) }}
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
+        - llvm =={{ version }}
+        # Use the same requirements as the top-level requirements
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
-        - llvm =={{ version }}
-        - zlib 1.2.13                     # [linux or win]
-        - libxml2 2.10                    # [win]
+        - libxml2
+        - zlib
+        - zstd
       run:
-        - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
-        - {{ pin_subpackage("libclang-cpp" + minor_aware_ext, max_pin="x.x") }}   # [unix]
+        - {{ pin_compatible("libcxx", max_pin=None) }}                            # [osx]
+        - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, max_pin="x.x") }}   # [unix]
     test:
       commands:
         - clang-format-{{ major_version }} --version
         - test ! -f ${PREFIX}/bin/clang-format                   # [unix]
-        - if exist %LIBRARY_BIN%\\clang-format.exe exit 1        # [win]
         - test ! -f ${PREFIX}/bin/c-index-test                   # [unix]
-        - if exist %LIBRARY_BIN%\\c-index-test.exe exit 1        # [win]
 
   - name: clang-format
     script: install_clang_format.sh  # [unix]
     script: install_clang_format.bat  # [win]
+    files:
+      - bin/clang-format               # [unix]
+      - Library/bin/clang-format.exe   # [win]
     build:
       track_features:
         - hcc          # [variant=="hcc"]
       string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
+      ignore_run_exports_from:
+        # the build fails if it doesn't find the following, but it's not used
+        - libxml2
+        - zlib
+        - zstd
     requirements:
       build:
         # "compiling .pyc files" fails without this
-        - python
+        - python >3
         - {{ compiler('cxx') }}
-        - cmake >=3.4.3
+        - cmake
         - ninja  # [win]
         - make   # [unix]
+        - llvmdev =={{ version }}    # [build_platform != target_platform]
       host:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("clangxx", exact=True) }}
         - {{ pin_subpackage("libclang", exact=True) }}
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
-        - {{ pin_subpackage("clang-format-" + major_version, exact=True) }}   # [unix]
+        - {{ pin_subpackage("clang-format-" ~ major_version, exact=True) }}      # [unix]
+        - llvm =={{ version }}
+        # Use the same requirements as the top-level requirements
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
-        - llvm =={{ version }}
-        - zlib 1.2.13                        # [linux or win]
-        - libxml2 2.10                       # [win]
+        - libxml2
+        - zlib
+        - zstd
       run:
-        - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
-        - {{ pin_subpackage("libclang-cpp" + minor_aware_ext, max_pin="x.x") }}   # [unix]
-        - {{ pin_subpackage("clang-format-" + major_version, exact=True) }}   # [unix]
+        - {{ pin_compatible("libcxx", max_pin=None) }}                           # [osx]
+        - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, max_pin="x.x") }}  # [unix]
+        - {{ pin_subpackage("clang-format-" ~ major_version, exact=True) }}      # [unix]
     test:
       commands:
         - clang-format --version
@@ -426,30 +546,38 @@ outputs:
       track_features:
         - hcc          # [variant=="hcc"]
       string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
+      ignore_run_exports_from:
+        # the build fails if it doesn't find the following, but it's not used
+        - zlib     # [unix]
+        - zstd     # [unix]
     requirements:
       build:
         # "compiling .pyc files" fails without this
-        - python
+        - python >3
         - {{ compiler('cxx') }}
-        - cmake >=3.4.3
+        - cmake
         - ninja  # [win]
         - make   # [unix]
+        - llvmdev =={{ version }}    # [build_platform != target_platform]
       host:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("clangxx", exact=True) }}
         - {{ pin_subpackage("libclang", exact=True) }}
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
         - {{ pin_subpackage("clang-format", exact=True) }}
+        - llvm =={{ version }}
+        # Use the same requirements as the top-level requirements
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
-        - llvm =={{ version }}
-        - zlib 1.2.13                        # [linux or win]
+        - libxml2
+        - zlib
+        - zstd
       run:
-        # - ucrt                                        # [win]
+        - ucrt                                          # [win]
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
         - {{ pin_subpackage("clang-format", exact=True) }}
-        - {{ pin_subpackage("libclang-cpp" + minor_aware_ext, max_pin="x.x") }}   # [unix]
-        - {{ pin_subpackage("libclang", max_pin="x.x") }}                         # [unix]
+        - {{ pin_subpackage("libclang" ~ libclang_soversion, max_pin=None) }}
+        - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, max_pin="x.x") }}   # [unix]
       run_constrained:
         - clangdev {{ version }}
     test:
@@ -459,16 +587,17 @@ outputs:
 
   - name: python-clang
     build:
-      string: {{ variant }}_py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ build_number }}
-    script: build_python_bindings.sh   # [unix]
-    script: build_python_bindings.bat  # [win]
-    skip: True  # [py<37]
-
+      noarch: python
+      # Building this output using this recipe is only supported on unix
+      # It can still be installed on Windows as it is marked as `noarch: python`
+      skip: true  # [not linux64]
+      string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
+    script: build_python_bindings.sh
     requirements:
       host:
-        - python
+        - python >=3.7
       run:
-        - python
+        - python >=3.7
         - libclang =={{ version }}
     test:
       source_files:
@@ -482,22 +611,23 @@ outputs:
         - python -m unittest discover -v
 
 about:
-  home: https://llvm.org/
+  home: http://llvm.org/
   license: Apache-2.0 WITH LLVM-exception
   license_file: clang/LICENSE.TXT
   license_family: Apache
   summary: Development headers and libraries for Clang
   dev_url: https://github.com/llvm/llvm-project
-  doc_url: https://llvm.org/docs/
 
 extra:
   recipe-maintainers:
+    - JohanMabille
     - inducer
     - isuruf
     - jakirkham
+    - katietz
     - SylvainCorlay
     - timsnyder
     - chrisburr
     - xhochy
     - h-vetinari
-  feedstock-name: clang
+  feedstock-name: clangdev
