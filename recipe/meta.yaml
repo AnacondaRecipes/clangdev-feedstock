@@ -23,18 +23,20 @@ source:
   - url: https://github.com/llvm/llvm-project/releases/download/llvmorg-{{ version.replace(".rc", "-rc") }}/llvm-project-{{ version.replace(".rc", "rc") }}.src.tar.xz
     sha256: 58a8818c60e6627064f312dbf46c02d9949956558340938b71cf731ad8bc0813
     patches:
-      - patches/0001-Fix-sysroot-detection-for-linux.patch
-      - patches/0002-clang-add-conda-specific-env-var-CONDA_BUILD_SYSROOT.patch
-      - patches/0003-Fix-normalizeProgramName-s-handling-of-dots-outside-.patch
-      - patches/0004-Set-VERSION-in-osx-as-well.patch
-      - patches/0005-Fix-crosscompiling-LLVM-tools.patch
+      - patches/0001-Find-conda-gcc-installation.patch
+      - patches/0002-Fix-sysroot-detection-for-linux.patch
+      - patches/0003-clang-add-conda-specific-env-var-CONDA_BUILD_SYSROOT.patch
+      - patches/0004-Fix-normalizeProgramName-s-handling-of-dots-outside-.patch
+      - patches/0005-Set-VERSION-in-osx-as-well.patch
+      - patches/0006-Fix-crosscompiling-LLVM-tools.patch
       # Disable -Werror,-Wundef-prefix=TARGET_OS as they are not yet defined in the 10.9 SDK used for osx-64
       # Only enable it for TARGET_OS_OSX.
-      - patches/0006-Only-error-on-undefined-TARGET_OS_OSX.patch  # [osx and x86_64]
-      - patches/0007-set-libclang-SOVERSION-unconditionally.patch
-      - patches/0008-Make-PIE-default-on-macOS-too.patch
+      - patches/0007-Only-error-on-undefined-TARGET_OS_OSX.patch  # [osx and x86_64]
+      - patches/0008-set-libclang-SOVERSION-unconditionally.patch
+      - patches/0009-Make-PIE-default-on-macOS-too.patch
       # check out git history before LLVM 16 for these patches
       # - patches/amd-roc-2.7.0.diff   # [variant != "hcc"]
+      - patches/llvm_winpython.diff
       # - patches/amd-roc-hcc-2.7.0.diff  # [variant == "hcc"]
     # name folder for easier deletion; we do the equivalent of downloading
     # the subproject sources, so the work folder then has clang in it;
@@ -43,7 +45,7 @@ source:
 
 build:
   number: {{ build_number }}
-  skip: true  # [variant == "hcc"]
+  skip: true  # [variant == "hcc" or (linux and s390x)]
 
 requirements:
   build:
@@ -54,7 +56,9 @@ requirements:
     # Needed to unpack the source tarball
     - m2w64-xz  # [win]
     # "compiling .pyc files" fails without this
-    - python >3
+    - python
+    - patch     # [not win]
+    - m2-patch  # [win]
     - llvmdev =={{ version }}    # [build_platform != target_platform]
     - libxml2                    # [build_platform != target_platform]
     - zlib                       # [build_platform != target_platform]
@@ -62,9 +66,9 @@ requirements:
   host:
     - libcxx {{ cxx_compiler_version }}  # [osx]
     - llvmdev =={{ version }}
-    - libxml2
-    - zlib
-    - zstd
+    - libxml2 {{ libxml2 }}
+    - zlib {{ zlib }}
+    - zstd {{ zstd }}
 
 test:
   requires:
@@ -114,9 +118,9 @@ outputs:
         # Use the same requirements as the top-level requirements
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
-        - libxml2
-        - zlib
-        - zstd
+        - libxml2 {{ libxml2 }}
+        - zlib {{ zlib }}
+        - zstd {{ zstd }}
       run:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("clangxx", exact=True) }}
@@ -161,9 +165,9 @@ outputs:
         # Use the same requirements as the top-level requirements
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
-        - libxml2
-        - zlib
-        - zstd
+        - libxml2 {{ libxml2 }}
+        - zlib {{ zlib }}
+        - zstd {{ zstd }}
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
     test:
@@ -176,6 +180,7 @@ outputs:
   - name: libclang-cpp
     # note that this is just an empty wrapper on windows
     script: install_libclang_cpp.sh  # [unix]
+    script: install_libclang_cpp.bat # [win]
     files:   # [unix]
       - lib/libclang-cpp.so     # [linux]
       - lib/libclang-cpp.dylib  # [osx]
@@ -203,9 +208,9 @@ outputs:
         # Use the same requirements as the top-level requirements
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
-        - libxml2
-        - zlib
-        - zstd
+        - libxml2 {{ libxml2 }}
+        - zlib {{ zlib }}
+        - zstd {{ zstd }}
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                        # [osx]
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
@@ -248,9 +253,9 @@ outputs:
         # Use the same requirements as the top-level requirements
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
-        - libxml2
-        - zlib
-        - zstd
+        - libxml2 {{ libxml2 }}
+        - zlib {{ zlib }}
+        - zstd {{ zstd }}
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
     test:
@@ -312,9 +317,9 @@ outputs:
         # Use the same requirements as the top-level requirements
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
-        - libxml2
-        - zlib
-        - zstd
+        - libxml2 {{ libxml2 }}
+        - zlib {{ zlib }}
+        - zstd {{ zstd }}
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                # [osx]
         - {{ pin_subpackage("libclang" ~ libclang_soversion, exact=True) }}
@@ -355,9 +360,9 @@ outputs:
         # Use the same requirements as the top-level requirements
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
-        - libxml2
-        - zlib
-        - zstd
+        - libxml2 {{ libxml2 }}
+        - zlib {{ zlib }}
+        - zstd {{ zstd }}
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                        # [osx]
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
@@ -397,9 +402,9 @@ outputs:
         # Use the same requirements as the top-level requirements
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
-        - libxml2
-        - zlib
-        - zstd
+        - libxml2 {{ libxml2 }}
+        - zlib {{ zlib }}
+        - zstd {{ zstd }}
       run:
         - binutils_impl_{{ target_platform }}  # [linux]
         - sysroot_{{ target_platform }}        # [linux]
@@ -430,9 +435,9 @@ outputs:
         # Use the same requirements as the top-level requirements
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
-        - libxml2
-        - zlib
-        - zstd
+        - libxml2 {{ libxml2 }}
+        - zlib {{ zlib }}
+        - zstd {{ zstd }}
       run:
         - libstdcxx-devel_{{ target_platform }}  # [linux]
         - {{ pin_subpackage("clang", exact=True) }}
@@ -480,9 +485,9 @@ outputs:
         # Use the same requirements as the top-level requirements
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
-        - libxml2
-        - zlib
-        - zstd
+        - libxml2 {{ libxml2 }}
+        - zlib {{ zlib }}
+        - zstd {{ zstd }}
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                            # [osx]
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, max_pin="x.x") }}   # [unix]
@@ -510,7 +515,7 @@ outputs:
     requirements:
       build:
         # "compiling .pyc files" fails without this
-        - python >3
+        - python
         - {{ compiler('cxx') }}
         - cmake
         - ninja  # [win]
@@ -526,9 +531,9 @@ outputs:
         # Use the same requirements as the top-level requirements
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
-        - libxml2
-        - zlib
-        - zstd
+        - libxml2 {{ libxml2 }}
+        - zlib {{ zlib }}
+        - zstd {{ zstd }}
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                           # [osx]
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, max_pin="x.x") }}  # [unix]
@@ -553,7 +558,7 @@ outputs:
     requirements:
       build:
         # "compiling .pyc files" fails without this
-        - python >3
+        - python
         - {{ compiler('cxx') }}
         - cmake
         - ninja  # [win]
@@ -569,11 +574,11 @@ outputs:
         # Use the same requirements as the top-level requirements
         - libcxx {{ cxx_compiler_version }}  # [osx]
         - llvmdev =={{ version }}
-        - libxml2
-        - zlib
-        - zstd
+        - libxml2 {{ libxml2 }}
+        - zlib {{ zlib }}
+        - zstd {{ zstd }}
       run:
-        - ucrt                                          # [win]
+        # - ucrt                                        # [win]
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
         - {{ pin_subpackage("clang-format", exact=True) }}
         - {{ pin_subpackage("libclang" ~ libclang_soversion, max_pin=None) }}
@@ -587,17 +592,14 @@ outputs:
 
   - name: python-clang
     build:
-      noarch: python
-      # Building this output using this recipe is only supported on unix
-      # It can still be installed on Windows as it is marked as `noarch: python`
-      skip: true  # [not linux64]
-      string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
-    script: build_python_bindings.sh
+      string: {{ variant }}_py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ build_number }}
+    script: build_python_bindings.sh   # [unix]
+    script: build_python_bindings.bat  # [win]
     requirements:
       host:
-        - python >=3.7
+        - python
       run:
-        - python >=3.7
+        - python
         - libclang =={{ version }}
     test:
       source_files:
@@ -611,12 +613,13 @@ outputs:
         - python -m unittest discover -v
 
 about:
-  home: http://llvm.org/
+  home: https://llvm.org/
   license: Apache-2.0 WITH LLVM-exception
   license_file: clang/LICENSE.TXT
   license_family: Apache
   summary: Development headers and libraries for Clang
   dev_url: https://github.com/llvm/llvm-project
+  doc_url: https://llvm.org/docs/
 
 extra:
   recipe-maintainers:

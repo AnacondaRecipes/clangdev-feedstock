@@ -7,11 +7,11 @@ Subject: [PATCH 1/8] Fix sysroot detection for linux
  clang/lib/Driver/ToolChains/Linux.cpp | 20 ++++++++++++++++----
  1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/clang/lib/Driver/ToolChains/Linux.cpp b/clang/lib/Driver/ToolChains/Linux.cpp
-index 1ba222bf83b1..ee361924b9e8 100644
---- a/clang/lib/Driver/ToolChains/Linux.cpp
-+++ b/clang/lib/Driver/ToolChains/Linux.cpp
-@@ -394,18 +394,30 @@ std::string Linux::computeSysRoot() const {
+Index: llvm-project/clang/lib/Driver/ToolChains/Linux.cpp
+===================================================================
+--- llvm-project.orig/clang/lib/Driver/ToolChains/Linux.cpp	2024-04-03 15:12:15.750204168 -0500
++++ llvm-project/clang/lib/Driver/ToolChains/Linux.cpp	2024-09-16 10:40:27.459497600 -0500
+@@ -394,18 +394,30 @@
      return std::string();
    }
  
