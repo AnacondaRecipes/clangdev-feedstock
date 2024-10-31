@@ -56,7 +56,7 @@ requirements:
     # Needed to unpack the source tarball
     - m2w64-xz  # [win]
     # "compiling .pyc files" fails without this
-    - python
+    - python >3
     - patch     # [not win]
     - m2-patch  # [win]
     - llvmdev =={{ version }}    # [build_platform != target_platform]
@@ -515,7 +515,7 @@ outputs:
     requirements:
       build:
         # "compiling .pyc files" fails without this
-        - python
+        - python >3
         - {{ compiler('cxx') }}
         - cmake
         - ninja  # [win]
@@ -558,7 +558,7 @@ outputs:
     requirements:
       build:
         # "compiling .pyc files" fails without this
-        - python
+        - python >3
         - {{ compiler('cxx') }}
         - cmake
         - ninja  # [win]
@@ -597,9 +597,9 @@ outputs:
     script: build_python_bindings.bat  # [win]
     requirements:
       host:
-        - python
+        - python >=3.7
       run:
-        - python
+        - python >=3.7
         - libclang =={{ version }}
     test:
       source_files:
