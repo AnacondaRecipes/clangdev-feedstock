@@ -1,8 +1,8 @@
-Index: llvm-project-14.0.6.src/clang/bindings/python/clang/cindex.py
+Index: llvm-project/clang/bindings/python/clang/cindex.py
 ===================================================================
---- llvm-project-14.0.6.src.orig/clang/bindings/python/clang/cindex.py
-+++ llvm-project-14.0.6.src/clang/bindings/python/clang/cindex.py
-@@ -63,6 +63,7 @@ from __future__ import absolute_import, 
+--- llvm-project.orig/clang/bindings/python/clang/cindex.py	2024-09-16 10:41:00.459562394 -0500
++++ llvm-project/clang/bindings/python/clang/cindex.py	2024-09-16 10:45:29.051291466 -0500
+@@ -63,6 +63,7 @@
  # o implement additional SourceLocation, SourceRange, and File methods.
  
  from ctypes import *
@@ -10,16 +10,16 @@ Index: llvm-project-14.0.6.src/clang/bindings/python/clang/cindex.py
  
  import clang.enumerations
  
-@@ -4160,7 +4161,7 @@ class Config(object):
-         if name == 'Darwin':
-             file = 'libclang.dylib'
-         elif name == 'Windows':
--            file = 'libclang.dll'
-+            file = 'libclang-13.dll'
+@@ -3935,7 +3936,7 @@
+         if name == "Darwin":
+             file = "libclang.dylib"
+         elif name == "Windows":
+-            file = "libclang.dll"
++            file = "libclang-13.dll"
          else:
-             file = 'libclang.so'
+             file = "libclang.so"
  
-@@ -4172,6 +4173,17 @@ class Config(object):
+@@ -3947,6 +3948,17 @@
      def get_cindex_library(self):
          try:
              library = cdll.LoadLibrary(self.get_filename())
@@ -35,5 +35,5 @@ Index: llvm-project-14.0.6.src/clang/bindings/python/clang/cindex.py
 +        try:
 +            library = cdll.LoadLibrary(self.get_filename())
          except OSError as e:
-             msg = str(e) + ". To provide a path to libclang use " \
-                            "Config.set_library_path() or " \
+             msg = (
+                 str(e) + ". To provide a path to libclang use "
