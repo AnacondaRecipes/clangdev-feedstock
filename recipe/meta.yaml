@@ -1,6 +1,6 @@
 {% set version = "14.0.6" %}
 {% set major_version = version.split(".")[0] %}
-{% set build_number = 1 %}
+{% set build_number = 2 %}
 
 {% set minor_aware_ext = major_version %}
 {% if version.split(".")[1] | int > 0 %}
@@ -371,7 +371,7 @@ outputs:
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - zlib 1.2.13                     # [linux or win]
-        - libxml2 2.10                    # [win]
+        - libxml2 {{ libxml2 }}           # [win]
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
         - {{ pin_subpackage("libclang-cpp" + minor_aware_ext, max_pin="x.x") }}   # [unix]
@@ -408,7 +408,7 @@ outputs:
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - zlib 1.2.13                        # [linux or win]
-        - libxml2 2.10                       # [win]
+        - libxml2 {{ libxml2 }}              # [win]
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
         - {{ pin_subpackage("libclang-cpp" + minor_aware_ext, max_pin="x.x") }}   # [unix]
