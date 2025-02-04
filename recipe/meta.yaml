@@ -1,6 +1,8 @@
-{% set version = "14.0.6" %}
+{% set version = "17.0.6" %}
 {% set major_version = version.split(".")[0] %}
 {% set build_number = 2 %}
+
+{% set bootstrap_version = "14.0.6" %}
 
 {% set minor_aware_ext = major_version %}
 {% if version.split(".")[1] | int > 0 %}
@@ -17,20 +19,20 @@ package:
 
 source:
   - url: https://github.com/llvm/llvm-project/releases/download/llvmorg-{{ version.replace(".rc", "-rc") }}/llvm-project-{{ version.replace(".rc", "rc") }}.src.tar.xz
-    sha256: 8b3cfd7bc695bd6cea0f37f53f0981f34f87496e79e2529874fd03a2f9dd3a8a
+    sha256: 58a8818c60e6627064f312dbf46c02d9949956558340938b71cf731ad8bc0813
     patches:
-      - patches/0001-Find-conda-gcc-installation.patch
-      - patches/0002-Fix-sysroot-detection-for-linux.patch
-      - patches/0003-clang-add-conda-specific-env-var-CONDA_BUILD_SYSROOT.patch
-      - patches/0004-Fix-normalizeProgramName-s-handling-of-dots-outside-.patch
-      - patches/0005-Set-VERSION-in-osx-as-well.patch
-      - patches/0006-Fix-crosscompiling-LLVM-tools.patch
+      - patches/0001-Fix-sysroot-detection-for-linux.patch
+      - patches/0002-clang-add-conda-specific-env-var-CONDA_BUILD_SYSROOT.patch
+      - patches/0003-Fix-normalizeProgramName-s-handling-of-dots-outside-.patch
+      - patches/0004-Set-VERSION-in-osx-as-well.patch
+      - patches/0005-Fix-crosscompiling-LLVM-tools.patch
       # Disable -Werror,-Wundef-prefix=TARGET_OS as they are not yet defined in the 10.9 SDK used for osx-64
       # Only enable it for TARGET_OS_OSX.
-      - patches/0007-Only-error-on-undefined-TARGET_OS_OSX.patch  # [osx and x86_64]
-      - patches/0008-set-libclang-SOVERSION-unconditionally.patch
+      - patches/0006-Only-error-on-undefined-TARGET_OS_OSX.patch  # [osx and x86_64]
+      - patches/0007-set-libclang-SOVERSION-unconditionally.patch
+      - patches/0008-Make-PIE-default-on-macOS-too.patch
+      # check out git history before LLVM 16 for these patches
       # - patches/amd-roc-2.7.0.diff   # [variant != "hcc"]
-      - patches/llvm_winpython.diff
       # - patches/amd-roc-hcc-2.7.0.diff  # [variant == "hcc"]
     # name folder for easier deletion; we do the equivalent of downloading
     # the subproject sources, so the work folder then has clang in it;
@@ -46,7 +48,7 @@ build:
 requirements:
   build:
     - {{ compiler('cxx') }}
-    - cmake >=3.4.3
+    - cmake
     # Needed to unpack the source tarball
     - m2w64-xz  # [win]
     # "compiling .pyc files" fails without this
@@ -58,13 +60,15 @@ requirements:
     - m2-patch  # [win]
   host:
     - libcxx {{ cxx_compiler_version }}  # [osx]
+    # - libcxx {{ bootstrap_version }}  # [osx]
+    # - llvmdev =={{ version }}
     - llvmdev =={{ version }}
     - zlib 1.2.13                        # [linux]
 
 test:
   requires:
     - {{ compiler('cxx') }}
-    - cmake >=3.4.3
+    - cmake
   files:
     - mytest.c
   commands:
@@ -91,7 +95,7 @@ outputs:
     requirements:
       build:
         - {{ compiler('cxx') }}
-        - cmake >=3.4.3
+        - cmake
         - ninja  # [win]
         - make   # [unix]
       host:
@@ -100,7 +104,7 @@ outputs:
         - {{ pin_subpackage("clang-tools", exact=True) }}
         - {{ pin_subpackage("libclang", exact=True) }}
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - libcxx {{ version }}  # [osx]
         - llvmdev =={{ version }}
         - zlib 1.2.13                        # [linux]
       run:
@@ -131,11 +135,11 @@ outputs:
     requirements:
       build:
         - {{ compiler('cxx') }}
-        - cmake >=3.4.3
+        - cmake
         - ninja  # [win]
         - make   # [unix]
       host:
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - libcxx {{ version }}  # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - zlib 1.2.13                        # [linux]
@@ -161,11 +165,11 @@ outputs:
     requirements:
       build:
         - {{ compiler('cxx') }}
-        - cmake >=3.4.3
+        - cmake
         - ninja  # [win]
         - make   # [unix]
       host:
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - libcxx {{ version }}  # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - zlib 1.2.13                        # [linux]
@@ -193,11 +197,11 @@ outputs:
     requirements:
       build:
         - {{ compiler('cxx') }}
-        - cmake >=3.4.3
+        - cmake
         - ninja                      # [win]
         - make                       # [unix]
       host:
-        - libcxx {{ cxx_compiler_version }}             # [osx]
+        - libcxx {{ version }}             # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - zlib 1.2.13                                   # [linux or win]
@@ -238,11 +242,11 @@ outputs:
     requirements:
       build:
         - {{ compiler('cxx') }}
-        - cmake >=3.4.3
+        - cmake
         - ninja                      # [win]
         - make                       # [unix]
       host:
-        - libcxx {{ cxx_compiler_version }}                           # [osx]
+        - libcxx {{ version }}                           # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - zlib 1.2.13                                                 # [linux or win]
@@ -271,11 +275,11 @@ outputs:
       build:
         - {{ compiler('cxx') }}
         - libcxx                             # [osx]
-        - cmake >=3.4.3
+        - cmake
         - ninja                              # [win]
         - make                               # [unix]
       host:
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - libcxx {{ version }}  # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - zlib 1.2.13                        # [linux or win]
@@ -303,8 +307,8 @@ outputs:
         - test -f "$PREFIX/lib/libclang-cpp.so.{{ minor_aware_ext }}"     # [linux]
         - test ! -f "$PREFIX/lib/libclang-cpp.dylib"                      # [osx]
         - test -f "$PREFIX/lib/libclang-cpp.{{ minor_aware_ext }}.dylib"  # [osx]
-        - test -f "$PREFIX/lib/clang/{{ '.'.join(version.split('.')[:3]) }}/include/stdatomic.h"                    # [unix]
-        - if not exist %LIBRARY_LIB%\\clang\\{{ '.'.join(version.split('.')[:3]) }}\\include\\stdatomic.h exit 1    # [win]
+        - test -f "$PREFIX/lib/clang/{{ version.split('.')[0] }}/include/stdatomic.h"                    # [unix]
+        - if not exist %LIBRARY_LIB%\\clang\\{{ version.split('.')[0] }}\\include\\stdatomic.h exit 1    # [win]
 
   - name: clang
     script: install_clang_symlinks.sh  # [unix]
@@ -359,7 +363,7 @@ outputs:
         # "compiling .pyc files" fails without this
         - python
         - {{ compiler('cxx') }}
-        - cmake >=3.4.3
+        - cmake
         - ninja  # [win]
         - make   # [unix]
       host:
@@ -367,7 +371,7 @@ outputs:
         - {{ pin_subpackage("clangxx", exact=True) }}
         - {{ pin_subpackage("libclang", exact=True) }}
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - libcxx {{ version }}  # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - zlib 1.2.13                     # [linux or win]
@@ -395,7 +399,7 @@ outputs:
         # "compiling .pyc files" fails without this
         - python
         - {{ compiler('cxx') }}
-        - cmake >=3.4.3
+        - cmake
         - ninja  # [win]
         - make   # [unix]
       host:
@@ -404,7 +408,7 @@ outputs:
         - {{ pin_subpackage("libclang", exact=True) }}
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
         - {{ pin_subpackage("clang-format-" + major_version, exact=True) }}   # [unix]
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - libcxx {{ version }}  # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - zlib 1.2.13                        # [linux or win]
@@ -431,7 +435,7 @@ outputs:
         # "compiling .pyc files" fails without this
         - python
         - {{ compiler('cxx') }}
-        - cmake >=3.4.3
+        - cmake
         - ninja  # [win]
         - make   # [unix]
       host:
@@ -440,7 +444,7 @@ outputs:
         - {{ pin_subpackage("libclang", exact=True) }}
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
         - {{ pin_subpackage("clang-format", exact=True) }}
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - libcxx {{ version }}  # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - zlib 1.2.13                        # [linux or win]

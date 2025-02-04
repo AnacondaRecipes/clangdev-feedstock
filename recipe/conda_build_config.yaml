@@ -7,6 +7,12 @@ cxx_compiler:
   - gxx              # [linux]
   - vs2019           # [win]
 
+c_compiler_version:        # [linux or osx]
+  - 11.2.0                 # [linux]
+  - 17.0.6                     # [osx]
+cxx_compiler_version:      # [linux or osx]
+  - 11.2.0                 # [linux]
+  - 17.0.6                     # [osx]
 # Starting from LLVM 14, the ABI of libclang doesn't necessarily
 # match the major version anymore - cf. #170 and
 # https://github.com/llvm/llvm-project/issues/54004
