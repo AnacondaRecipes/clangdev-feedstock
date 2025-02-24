@@ -1,23 +1,27 @@
 c_compiler:
   - clang_bootstrap  # [osx]
-  - gcc              # [linux]
+  - clang             # [linux]
   - vs2019           # [win]
 cxx_compiler:
   - clang_bootstrap  # [osx]
-  - gxx              # [linux]
+  - clang  # [linux]
   - vs2019           # [win]
 
 c_compiler_version:        # [linux or osx]
-  - 11.2.0                 # [linux]
+  # - 11.2.0                 # [linux]
+  - 19                 # [linux]
   - 17.0.6                     # [osx]
 cxx_compiler_version:      # [linux or osx]
-  - 11.2.0                 # [linux]
+  # - 11.2.0                 # [linux]
+  - 19                 # [linux]
   - 17.0.6                     # [osx]
-# Starting from LLVM 14, the ABI of libclang doesn't necessarily
-# match the major version anymore - cf. #170 and
-# https://github.com/llvm/llvm-project/issues/54004
-libclang_soversion:
-  - '13'
+
+# Default behavior changed back to matching with CLANG_FORCE_MATCHING_LIBCLANG_SOVERSION
+# Cmake option defaulting to true. This should be checked and updated every major version bump
+# https://github.com/llvm/llvm-project/blob/release/17.x/clang/tools/libclang/CMakeLists.txt#L6
+# LEAVING THIS DELIBERATELY COMMENTED OUT FOR THE NEXT POOR SOUL TO FIND IT
+# libclang_soversion:
+#   - '17'
 
 variant:
   - default

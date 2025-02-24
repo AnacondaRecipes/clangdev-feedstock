@@ -2,15 +2,13 @@
 {% set major_version = version.split(".")[0] %}
 {% set build_number = 2 %}
 
-{% set bootstrap_version = "14.0.6" %}
-
 {% set minor_aware_ext = major_version %}
 {% if version.split(".")[1] | int > 0 %}
 {% set minor_aware_ext = major_version + "." + version.split(".")[1] %}
 {% endif %}
 
 {% if libclang_soversion is not defined %}
-{% set libclang_soversion = major_version %}
+{% set libclang_soversion = "13" %}
 {% endif %}
 
 package:
@@ -29,6 +27,11 @@ source:
       # Disable -Werror,-Wundef-prefix=TARGET_OS as they are not yet defined in the 10.9 SDK used for osx-64
       # Only enable it for TARGET_OS_OSX.
       - patches/0006-Only-error-on-undefined-TARGET_OS_OSX.patch  # [osx and x86_64]
+      - patches/0007-set-libclang-SOVERSION-unconditionally.patch
+      - patches/0008-Make-PIE-default-on-macOS-too.patch
+      # check out git history before LLVM 16 for these patches
+      # - patches/amd-roc-2.7.0.diff   # [variant != "hcc"]
+      # - patches/amd-roc-hcc-2.7.0.diff  # [variant == "hcc"]
     # name folder for easier deletion; we do the equivalent of downloading
     # the subproject sources, so the work folder then has clang in it;
     # for details see build scripts
@@ -43,6 +46,7 @@ build:
 requirements:
   build:
     - {{ compiler('cxx') }}
+    - libcxx <={{ version }}  # [osx]
     - cmake
     # Needed to unpack the source tarball
     - m2w64-xz  # [win]
@@ -54,9 +58,8 @@ requirements:
     - patch     # [not win]
     - m2-patch  # [win]
   host:
-    - libcxx {{ cxx_compiler_version }}  # [osx]
-    # - libcxx {{ bootstrap_version }}  # [osx]
-    # - llvmdev =={{ version }}
+    # - libcxx {{ cxx_compiler_version }}  # [osx]
+    - libcxx <={{ version }}   # [osx]
     - llvmdev =={{ version }}
     - zlib 1.2.13                        # [linux]
 
@@ -99,7 +102,7 @@ outputs:
         - {{ pin_subpackage("clang-tools", exact=True) }}
         - {{ pin_subpackage("libclang", exact=True) }}
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
-        - libcxx <={{ version }}  # [osx]
+        - libcxx <={{ version }}   # [osx]
         - llvmdev =={{ version }}
         - zlib 1.2.13                        # [linux]
       run:
@@ -109,7 +112,7 @@ outputs:
         - {{ pin_subpackage("libclang", exact=True) }}
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
-        - llvmdev =={{ version }}
+        # - llvmdev =={{ version }}
     test:
       commands:
         - test -f "$PREFIX/include/clang/Config/config.h"   # [unix]
@@ -134,7 +137,7 @@ outputs:
         - ninja  # [win]
         - make   # [unix]
       host:
-        - libcxx <={{ version }}  # [osx]
+        - libcxx <={{ version }}   # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - zlib 1.2.13                        # [linux]
@@ -164,7 +167,7 @@ outputs:
         - ninja  # [win]
         - make   # [unix]
       host:
-        - libcxx <={{ version }}  # [osx]
+        - libcxx <={{ version }}   # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - zlib 1.2.13                        # [linux]
@@ -186,6 +189,8 @@ outputs:
         - hcc          # [variant=="hcc"]
       string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
       run_exports:
+        # note that the name (e.g. libclang13) does not necessarily
+        # match the version lower bound (e.g. >=14.0.0)
         - {{ pin_subpackage("libclang" + libclang_soversion, max_pin="x.x") }}
     requirements:
       build:
@@ -194,11 +199,12 @@ outputs:
         - ninja                      # [win]
         - make                       # [unix]
       host:
-        - libcxx <={{ version }}             # [osx]
+        - libcxx <={{ version }}              # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - zlib 1.2.13                                   # [linux or win]
-        - {{ pin_subpackage("clang", exact=True) }}
+        # - {{ pin_subpackage("clang", exact=True) }}
+        - {{ pin_compatible("clang", exact=True) }}
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
     test:
@@ -214,6 +220,13 @@ outputs:
         - if exist %LIBRARY_BIN%\\libclang.dll exit 1                      # [win]
         - if exist %LIBRARY_LIB%\\libclang.lib exit 1                      # [win]
 
+        # absence of major version if soversion is different
+        {% if libclang_soversion != major_version %}
+        - test ! -f "$PREFIX/lib/libclang.so.{{ major_version }}"          # [linux]
+        - test ! -f "$PREFIX/lib/libclang.{{ major_version }}.dylib"       # [osx]
+        - if exist %LIBRARY_BIN%\\libclang-{{ major_version }}.dll exit 1  # [win]
+        {% endif %}
+
   - name: libclang
     script: install_libclang.sh  # [unix]
     script: install_libclang.bat  # [win]
@@ -222,6 +235,8 @@ outputs:
         - hcc          # [variant=="hcc"]
       string: {{ variant }}_h{{ PKG_HASH }}_{{ build_number }}
       run_exports:
+        # note that the name (e.g. libclang13) does not necessarily
+        # match the version lower bound (e.g. >=14.0.0)
         - {{ pin_subpackage("libclang" + libclang_soversion, max_pin=None) }}
     requirements:
       build:
@@ -230,7 +245,7 @@ outputs:
         - ninja                      # [win]
         - make                       # [unix]
       host:
-        - libcxx <={{ version }}                           # [osx]
+        - libcxx <={{ version }}                            # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - zlib 1.2.13                                                 # [linux or win]
@@ -255,10 +270,11 @@ outputs:
       missing_dso_whitelist:  # [win]
        - $RPATH/charset.dll   # [win]
        - $RPATH/iconv.dll     # [win]
+      #  - $RPATH/libgcc_s.so.1 # [linux]
     requirements:
       build:
         - {{ compiler('cxx') }}
-        - libcxx                             # [osx]
+        - libcxx <={{ version }}  # [osx]
         - cmake
         - ninja                              # [win]
         - make                               # [unix]
@@ -355,7 +371,7 @@ outputs:
         - {{ pin_subpackage("clangxx", exact=True) }}
         - {{ pin_subpackage("libclang", exact=True) }}
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
-        - libcxx <={{ version }}  # [osx]
+        - libcxx <={{ version }}   # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - zlib 1.2.13                     # [linux or win]
@@ -392,7 +408,7 @@ outputs:
         - {{ pin_subpackage("libclang", exact=True) }}
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
         - {{ pin_subpackage("clang-format-" + major_version, exact=True) }}   # [unix]
-        - libcxx <={{ version }}  # [osx]
+        - libcxx <={{ version }}   # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - zlib 1.2.13                        # [linux or win]
@@ -428,7 +444,7 @@ outputs:
         - {{ pin_subpackage("libclang", exact=True) }}
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
         - {{ pin_subpackage("clang-format", exact=True) }}
-        - libcxx <={{ version }}  # [osx]
+        - libcxx <={{ version }}   # [osx]
         - llvmdev =={{ version }}
         - llvm =={{ version }}
         - zlib 1.2.13                        # [linux or win]
