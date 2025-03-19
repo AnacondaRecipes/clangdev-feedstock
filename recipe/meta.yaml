@@ -68,7 +68,7 @@ requirements:
     - llvmdev =={{ version }}
     - libxml2 {{ libxml2 }}
     - zlib {{ zlib }}
-    - zstd {{ zstd }}
+    - zstd
 
 test:
   requires:
@@ -120,7 +120,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd {{ zstd }}
+        - zstd
       run:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("clangxx", exact=True) }}
@@ -167,7 +167,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd {{ zstd }}
+        - zstd
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
     test:
@@ -210,7 +210,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd {{ zstd }}
+        - zstd
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                        # [osx]
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
@@ -255,7 +255,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd {{ zstd }}
+        - zstd
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
     test:
@@ -319,7 +319,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd {{ zstd }}
+        - zstd
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                # [osx]
         - {{ pin_subpackage("libclang" ~ libclang_soversion, exact=True) }}
@@ -345,7 +345,7 @@ outputs:
         # the build fails if it doesn't find the following, but it's not used
         - libxml2
         - zlib     # [unix]
-        - zstd     # [unix]
+        - zstd
     requirements:
       build:
         - {{ compiler('cxx') }}
@@ -362,7 +362,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd {{ zstd }}
+        - zstd
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                        # [osx]
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
@@ -395,7 +395,7 @@ outputs:
         # the build fails if it doesn't find the following, but it's not used
         - libxml2
         - zlib     # [unix]
-        - zstd     # [unix]
+        - zstd
     requirements:
       host:
         - {{ pin_subpackage("clang-" ~ major_version, exact=True) }}
@@ -404,7 +404,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd {{ zstd }}
+        - zstd
       run:
         - binutils_impl_{{ target_platform }}  # [linux]
         - sysroot_{{ target_platform }}        # [linux]
@@ -437,7 +437,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd {{ zstd }}
+        - zstd
       run:
         - libstdcxx-devel_{{ target_platform }}  # [linux]
         - {{ pin_subpackage("clang", exact=True) }}
@@ -487,7 +487,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd {{ zstd }}
+        - zstd
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                            # [osx]
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, max_pin="x.x") }}   # [unix]
@@ -533,7 +533,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd {{ zstd }}
+        - zstd
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                           # [osx]
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, max_pin="x.x") }}  # [unix]
@@ -576,7 +576,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd {{ zstd }}
+        - zstd
       run:
         # - ucrt                                        # [win]
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
