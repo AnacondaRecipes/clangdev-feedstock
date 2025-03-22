@@ -46,6 +46,14 @@ source:
 build:
   number: {{ build_number }}
   skip: true  # [variant == "hcc" or (linux and s390x)]
+  # TODO: there is something odd about zstd which may be a bug in conda-build
+  # or a false positive. The issue is that some outputs don't find zstd in the
+  # package, and thus will have an overlinking error. However other outputs do
+  # find it and it appears to be linked properly. Having this workaround is a
+  # bit of a sledgehammer, it would be nice to put the entry only on the output(s)
+  # that are failing but in the interest of time, it's here.
+  missing_dso_whitelist:
+    - zstd
 
 requirements:
   build:
@@ -68,7 +76,7 @@ requirements:
     - llvmdev =={{ version }}
     - libxml2 {{ libxml2 }}
     - zlib {{ zlib }}
-    - zstd
+    - zstd {{ zstd }}
 
 test:
   requires:
@@ -120,7 +128,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd
+        - zstd {{ zstd }}
       run:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("clangxx", exact=True) }}
@@ -167,7 +175,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd
+        - zstd {{ zstd }}
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
     test:
@@ -210,7 +218,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd
+        - zstd {{ zstd }}
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                        # [osx]
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
@@ -255,7 +263,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd
+        - zstd {{ zstd }}
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
     test:
@@ -319,7 +327,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd
+        - zstd {{ zstd }}
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                # [osx]
         - {{ pin_subpackage("libclang" ~ libclang_soversion, exact=True) }}
@@ -362,7 +370,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd
+        - zstd {{ zstd }}
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                        # [osx]
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
@@ -404,7 +412,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd
+        - zstd {{ zstd }}
       run:
         - binutils_impl_{{ target_platform }}  # [linux]
         - sysroot_{{ target_platform }}        # [linux]
@@ -437,7 +445,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd
+        - zstd {{ zstd }}
       run:
         - libstdcxx-devel_{{ target_platform }}  # [linux]
         - {{ pin_subpackage("clang", exact=True) }}
@@ -487,7 +495,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd
+        - zstd {{ zstd }}
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                            # [osx]
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, max_pin="x.x") }}   # [unix]
@@ -533,7 +541,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd
+        - zstd {{ zstd }}
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                           # [osx]
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, max_pin="x.x") }}  # [unix]
@@ -576,7 +584,7 @@ outputs:
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
-        - zstd
+        - zstd {{ zstd }}
       run:
         # - ucrt                                        # [win]
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
