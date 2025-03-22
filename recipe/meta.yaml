@@ -605,9 +605,9 @@ outputs:
     script: build_python_bindings.bat  # [win]
     requirements:
       host:
-        - python >=3.7
+        - python
       run:
-        - python >=3.7
+        - python
         - libclang =={{ version }}
     test:
       source_files:
@@ -629,7 +629,13 @@ about:
   dev_url: https://github.com/llvm/llvm-project
   doc_url: https://llvm.org/docs/
 
+
 extra:
+  skip-lints:
+    # there are false positives for these checks,
+    # for some of the individual outputs.
+    - missing_tests
+    - should_use_compilers
   recipe-maintainers:
     - JohanMabille
     - inducer
