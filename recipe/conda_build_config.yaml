@@ -3,11 +3,21 @@ c_compiler:          # [osx]
 cxx_compiler:        # [osx]
   - clang_bootstrap  # [osx]
 
+c_compiler_version:
+  - 11.2.0            # [linux]
+  - 17.0.6            # [osx]
+cxx_compiler_version:
+  - 11.2.0            # [linux]
+  - 17.0.6            # [osx]
+
 # Starting from LLVM 14, the ABI of libclang doesn't necessarily
 # match the major version anymore - cf. #170 and
 # https://github.com/llvm/llvm-project/issues/54004
 libclang_soversion:
   - 13
+
+CONDA_BUILD_SYSROOT:
+  - /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk
 
 variant:
   - default
