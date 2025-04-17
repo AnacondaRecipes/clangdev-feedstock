@@ -72,7 +72,7 @@ requirements:
     - zlib
     - zstd
   host:
-    - libcxx {{ cxx_compiler_version }}  # [osx]
+    - libcxx {{ version }}  # [osx]
     - llvmdev =={{ version }}
     - libxml2 {{ libxml2 }}
     - zlib {{ zlib }}
@@ -121,7 +121,7 @@ outputs:
         - {{ pin_subpackage("libclang", exact=True) }}
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
         # Use the same requirements as the top-level requirements
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - libcxx {{ version }}  # [osx]
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -164,17 +164,17 @@ outputs:
         - cmake
         - ninja  # [win]
         - make   # [unix]
-        - llvmdev =={{ version }}    # [build_platform != target_platform]
+        - llvmdev =={{ version }}
       host:
         - llvm =={{ version }}
         # Use the same requirements as the top-level requirements
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - libcxx {{ version }}  # [osx]
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
         - zstd {{ zstd }}
       run:
-        - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
+        - {{ pin_compatible("libcxx", max_pin=None) }}                        # [osx]
     test:
       commands:
         - test ! -f "$PREFIX/lib/libclang-cpp.so"                             # [linux]
@@ -211,7 +211,7 @@ outputs:
         - llvm =={{ version }}
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
         # Use the same requirements as the top-level requirements
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - libcxx {{ version }}  # [osx]
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -252,12 +252,12 @@ outputs:
         - cmake
         - ninja                      # [win]
         - make                       # [unix]
-        - llvmdev =={{ version }}    # [build_platform != target_platform]
+        - llvmdev =={{ version }}
       host:
         - llvm =={{ version }}
         - {{ pin_subpackage("clang", exact=True) }}
         # Use the same requirements as the top-level requirements
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - libcxx {{ version }}  # [osx]
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -321,7 +321,7 @@ outputs:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("libclang" ~ libclang_soversion, exact=True) }}
         # Use the same requirements as the top-level requirements
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - libcxx {{ version }}  # [osx]
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -364,7 +364,7 @@ outputs:
         - llvm =={{ version }}
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
         # Use the same requirements as the top-level requirements
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - libcxx {{ version }}  # [osx]
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -406,7 +406,7 @@ outputs:
       host:
         - {{ pin_subpackage("clang-" ~ major_version, exact=True) }}
         # Use the same requirements as the top-level requirements
-        - libcxx {{ cxx_compiler_version }}     # [osx]
+        - libcxx {{ version }}     # [osx]
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -439,7 +439,7 @@ outputs:
         - zlib 1.2.13   # [win]
         - {{ pin_subpackage("clang", exact=True) }}
         # Use the same requirements as the top-level requirements
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - libcxx {{ version }}  # [osx]
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -489,7 +489,7 @@ outputs:
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
         - llvm =={{ version }}
         # Use the same requirements as the top-level requirements
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - libcxx {{ version }}  # [osx]
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -535,7 +535,7 @@ outputs:
         - {{ pin_subpackage("clang-format-" ~ major_version, exact=True) }}      # [unix]
         - llvm =={{ version }}
         # Use the same requirements as the top-level requirements
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - libcxx {{ version }}  # [osx]
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -578,7 +578,7 @@ outputs:
         - {{ pin_subpackage("clang-format", exact=True) }}
         - llvm =={{ version }}
         # Use the same requirements as the top-level requirements
-        - libcxx {{ cxx_compiler_version }}  # [osx]
+        - libcxx {{ version }}  # [osx]
         - llvmdev =={{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
