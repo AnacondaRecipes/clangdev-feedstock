@@ -17,8 +17,8 @@ libclang_soversion:
   - 13
 
 CONDA_BUILD_SYSROOT:
-  - /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk
-  # - /Library/Developer/CommandLineTools/SDKs/MacOSX14.5.sdk
+  # - /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk
+  - /Library/Developer/CommandLineTools/SDKs/MacOSX14.5.sdk
 
 variant:
   - default
