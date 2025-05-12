@@ -53,7 +53,7 @@ build:
   # bit of a sledgehammer, it would be nice to put the entry only on the output(s)
   # that are failing but in the interest of time, it's here.
   missing_dso_whitelist:
-    - zstd
+    - "*/zstd.dll"  # [win]
 
 requirements:
   build:

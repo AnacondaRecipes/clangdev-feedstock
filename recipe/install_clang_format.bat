@@ -1,14 +1,14 @@
 @echo on
+setlocal enabledelayedexpansion
+
+:: Create a staging install directory
+set STAGING_DIR=%SRC_DIR%\clang\install_clang_format
 
 cd %SRC_DIR%\clang\build
-ninja install
+cmake --install . --prefix "%STAGING_DIR%"
 if %ERRORLEVEL% neq 0 exit 1
 
-cd %LIBRARY_PREFIX%
-rmdir /s /q lib libexec share include
+move "%STAGING_DIR%\bin\clang-format.exe" "%LIBRARY_BIN%\clang-format.exe"
+if %ERRORLEVEL% neq 0 exit 1
 
-move bin bin2
-mkdir bin
-
-move bin2\clang-format.exe bin\clang-format.exe
-rmdir /s /q bin2
+endlocal
