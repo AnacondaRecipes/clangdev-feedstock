@@ -363,7 +363,7 @@ outputs:
         # the build fails if it doesn't find the following, but it's not used
         - libxml2
         - zlib     # [unix]
-        - zstd
+        - zstd     # [unix]
     requirements:
       build:
         - {{ compiler('cxx') }}
@@ -414,9 +414,10 @@ outputs:
         # the build fails if it doesn't find the following, but it's not used
         - libxml2
         - zlib     # [unix]
-        - zstd
+        - zstd     # [unix]
     requirements:
       build:
+        - {{ compiler('cxx') }}
         - tapi  # [unix]
       host:
         - {{ pin_subpackage("clang-" ~ major_version, exact=True) }}
@@ -452,6 +453,7 @@ outputs:
         - zstd     # [unix]
     requirements:
       build:
+        - {{ compiler('cxx') }}
         - tapi  # [unix]
       host:
         - zlib 1.2.13   # [win]
