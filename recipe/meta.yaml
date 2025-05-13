@@ -63,14 +63,12 @@ requirements:
     - libxml2
     - zlib
     - zstd
-    - tapi  # [unix]
   host:
     - libcxx {{ version }}  # [osx]
     - llvmdev {{ version }}
     - libxml2 {{ libxml2 }}
     - zlib {{ zlib }}
     - zstd {{ zstd }}
-    - tapi  # [unix]
 
 test:
   requires:
@@ -108,7 +106,6 @@ outputs:
         - ninja  # [win]
         - make   # [unix]
         - llvmdev {{ version }}
-        - tapi  # [unix]
       host:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("clangxx", exact=True) }}
@@ -121,7 +118,6 @@ outputs:
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
         - zstd {{ zstd }}
-        - tapi  # [unix]
       run:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("clangxx", exact=True) }}
@@ -161,7 +157,6 @@ outputs:
         - ninja  # [win]
         - make   # [unix]
         - llvmdev {{ version }}
-        - tapi  # [unix]
       host:
         - llvm {{ version }}
         # Use the same requirements as the top-level requirements
@@ -170,7 +165,6 @@ outputs:
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
         - zstd {{ zstd }}
-        - tapi  # [unix]
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                        # [osx]
     test:
@@ -205,7 +199,6 @@ outputs:
         - ninja  # [win]
         - make   # [unix]
         - llvmdev {{ version }}
-        - tapi  # [unix]
       host:
         - llvm {{ version }}
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
@@ -215,7 +208,6 @@ outputs:
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
         - zstd {{ zstd }}
-        - tapi  # [unix]
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                        # [osx]
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
@@ -253,7 +245,6 @@ outputs:
         - ninja                      # [win]
         - make                       # [unix]
         - llvmdev {{ version }}
-        - tapi  # [unix]
       host:
         - llvm {{ version }}
         - {{ pin_subpackage("clang", exact=True) }}
@@ -263,7 +254,6 @@ outputs:
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
         - zstd {{ zstd }}
-        - tapi  # [unix]
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
     test:
@@ -318,7 +308,6 @@ outputs:
         - ninja                      # [win]
         - make                       # [unix]
         - llvmdev {{ version }}
-        - tapi  # [unix]
       host:
         - llvm {{ version }}
         - {{ pin_subpackage("clang", exact=True) }}
@@ -329,7 +318,6 @@ outputs:
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
         - zstd {{ zstd }}
-        - tapi  # [unix]
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                # [osx]
         - {{ pin_subpackage("libclang" ~ libclang_soversion, exact=True) }}
@@ -364,7 +352,6 @@ outputs:
         - make                               # [unix]
         - libcxx                             # [osx]
         - llvmdev {{ version }}
-        - tapi  # [unix]
       host:
         - llvm {{ version }}
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
@@ -410,7 +397,6 @@ outputs:
     requirements:
       build:
         - {{ compiler('cxx') }}
-        - tapi  # [unix]
       host:
         - {{ pin_subpackage("clang-" ~ major_version, exact=True) }}
         # Use the same requirements as the top-level requirements
@@ -419,7 +405,6 @@ outputs:
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
         - zstd {{ zstd }}
-        - tapi  # [unix]
       run:
         - binutils_impl_{{ target_platform }}  # [linux]
         - sysroot_{{ target_platform }}        # [linux]
@@ -446,7 +431,6 @@ outputs:
     requirements:
       build:
         - {{ compiler('cxx') }}
-        - tapi  # [unix]
       host:
         - zlib 1.2.13   # [win]
         - {{ pin_subpackage("clang", exact=True) }}
@@ -456,7 +440,6 @@ outputs:
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
         - zstd {{ zstd }}
-        - tapi  # [unix]
       run:
         - libstdcxx-devel_{{ target_platform }}  # [linux]
         - {{ pin_subpackage("clang", exact=True) }}
@@ -495,7 +478,6 @@ outputs:
         - cmake
         - make   # [unix]
         - llvmdev {{ version }}
-        - tapi  # [unix]
       host:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("clangxx", exact=True) }}
@@ -508,7 +490,6 @@ outputs:
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
         - zstd {{ zstd }}
-        - tapi  # [unix]
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                            # [osx]
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, max_pin="x.x") }}   # [unix]
@@ -542,7 +523,6 @@ outputs:
         - ninja  # [win]
         - make   # [unix]
         - llvmdev {{ version }}
-        - tapi  # [unix]
       host:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("clangxx", exact=True) }}
@@ -556,7 +536,6 @@ outputs:
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
         - zstd {{ zstd }}
-        - tapi  # [unix]
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                           # [osx]
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, max_pin="x.x") }}  # [unix]
@@ -587,7 +566,6 @@ outputs:
         - ninja  # [win]
         - make   # [unix]
         - llvmdev {{ version }}
-        - tapi  # [unix]
       host:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("clangxx", exact=True) }}
@@ -601,7 +579,6 @@ outputs:
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
         - zstd {{ zstd }}
-        - tapi  # [unix]
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
         - {{ pin_subpackage("clang-format", exact=True) }}
