@@ -46,14 +46,6 @@ source:
 build:
   number: {{ build_number }}
   skip: true  # [variant == "hcc"]
-  # TODO: there is something odd about zstd which may be a bug in conda-build
-  # or a false positive. The issue is that some outputs don't find zstd in the
-  # package, and thus will have an overlinking error. However other outputs do
-  # find it and it appears to be linked properly. Having this workaround is a
-  # bit of a sledgehammer, it would be nice to put the entry only on the output(s)
-  # that are failing but in the interest of time, it's here.
-  missing_dso_whitelist:
-    - "*/zstd.dll"  # [win]
 
 requirements:
   build:
