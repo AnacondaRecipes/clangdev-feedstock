@@ -572,6 +572,8 @@ outputs:
         - {{ pin_subpackage("libclang", exact=True) }}
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
         - {{ pin_subpackage("clang-format", exact=True) }}
+        - {{ pin_subpackage("libclang" ~ libclang_soversion, exact=True) }}
+        - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
         - llvm {{ version }}
         # Use the same requirements as the top-level requirements
         - libcxx {{ version }}  # [osx]
@@ -619,6 +621,13 @@ about:
   license_file: clang/LICENSE.TXT
   license_family: Apache
   summary: Development headers and libraries for Clang
+  description: |
+    Clang is a C, C++, Objective-C, and Objective-C++ compiler which encompasses 
+    preprocessing, parsing, optimization, code generation, assembly, and linking. 
+    It is modular in design and supports multiple frontends. Clang is part of the 
+    LLVM compiler infrastructure project and aims to deliver amazingly fast compiles, 
+    extremely useful error and warning messages, and provide a platform for building 
+    great source level tools.
   dev_url: https://github.com/llvm/llvm-project
   doc_url: https://llvm.org/docs/
 
