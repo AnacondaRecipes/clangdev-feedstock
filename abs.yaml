@@ -1,12 +1,10 @@
 build_parameters:
   - "--suppress-variables"
-  # - "--error-overlinking"
-  # TODO: Fix overlinking issue with defaults/win-64::vs2015_runtime==14.42.34433=he0abc0d_4
+  - "--error-overlinking"
 
-upload_without_merge: True
+aggregate_check: false
 
-upload_channels:
-  - llvm-17.0.6-stage0
+staging_channel_upload_target: llvm-17.0.6-stage1
 
 channels:
-  - llvm-17.0.6-stage0
+  - https://staging.continuum.io/prefect/llvm-17.0.6-stage1

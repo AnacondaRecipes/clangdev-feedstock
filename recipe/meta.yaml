@@ -1,6 +1,6 @@
 {% set version = "17.0.6" %}
 {% set major_version = version.split(".")[0] %}
-{% set build_number = 2 %}
+{% set build_number = 3 %}
 
 {% set minor_aware_ext = major_version %}
 {% if version.split(".")[1] | int > 0 %}
@@ -147,6 +147,10 @@ outputs:
         - zlib     # [unix]
         - libxml2  # [unix]
         - zstd     # [unix]
+      missing_dso_whitelist:
+        # Conda build isn't able to find these libraries, although they are present.
+        - $RPATH/libLLVM-{{ major_version }}.dylib  # [osx]
+        - $RPATH/libc++.1.dylib  # [osx]
     requirements:
       build:
         - {{ compiler('cxx') }}
@@ -163,7 +167,8 @@ outputs:
         - zlib {{ zlib }}
         - zstd {{ zstd }}
       run:
-        - {{ pin_compatible("libcxx", max_pin=None) }}                        # [osx]
+        - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
+        - llvm {{ version }}  # [osx]
     test:
       commands:
         - test ! -f "$PREFIX/lib/libclang-cpp.so"                             # [linux]
