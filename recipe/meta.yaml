@@ -149,8 +149,8 @@ outputs:
         - zstd     # [unix]
       missing_dso_whitelist:
         # Conda build isn't able to find these libraries, although they are present.
-        - $RPATH/libLLVM-{{ major_version }}.dylib  # [osx]
-        - $RPATH/libc++.1.dylib  # [osx]
+        - $RPATH/libLLVM-{{ major_version }}{{ SHLIB_EXT }}  # [unix]
+        - $RPATH/libc++.1{{ SHLIB_EXT }}  # [unix]
     requirements:
       build:
         - {{ compiler('cxx') }}
