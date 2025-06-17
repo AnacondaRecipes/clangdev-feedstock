@@ -4,19 +4,12 @@ set -ex
 cd ${SRC_DIR}/clang/build
 make install
 
-cd "${PREFIX}"
-rm -rf libexec share include
+cd $PREFIX
+rm -rf lib/cmake include lib/lib*.a libexec share
 
 mv bin bin2
 mkdir -p bin
 
-maj_version="${PKG_VERSION%%.*}"
-cp bin2/clang-${maj_version} bin/
+MAJOR_VERSION=$(echo ${PKG_VERSION} | cut -f1 -d".")
+mv ${PREFIX}/bin2/clang-${MAJOR_VERSION} ${PREFIX}/bin/clang-${MAJOR_VERSION}
 rm -rf bin2
-
-mv lib lib2
-mkdir -p lib
-mv lib2/libclang-cpp.* lib/
-rm lib/libclang-cpp${SHLIB_EXT}
-cp -Rf lib2/clang lib/
-rm -rf lib2

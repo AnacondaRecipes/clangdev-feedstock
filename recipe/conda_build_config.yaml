@@ -1,18 +1,25 @@
 c_compiler:
-  - clang_bootstrap  # [osx]
-  - gcc              # [linux]
-  - vs2019           # [win]
+  - clang_bootstrap            # [osx]
+  - vs2022                     # [win]
 cxx_compiler:
-  - clang_bootstrap  # [osx]
-  - gxx              # [linux]
-  - vs2019           # [win]
+  - clang_bootstrap            # [osx]
+  - vs2022                     # [win]
+
+c_compiler_version:
+  - 11.2.0            # [linux]
+  - 17.0.6            # [osx]
+cxx_compiler_version:
+  - 11.2.0            # [linux]
+  - 17.0.6            # [osx]
 
 # Starting from LLVM 14, the ABI of libclang doesn't necessarily
 # match the major version anymore - cf. #170 and
 # https://github.com/llvm/llvm-project/issues/54004
 libclang_soversion:
-  - '13'
+  - 13
 
 variant:
   - default
-  # - hcc   # [linux]
+# For future compatibility with AMD ROCm
+# https://github.com/ROCm/hcc
+#  - hcc   # [linux]

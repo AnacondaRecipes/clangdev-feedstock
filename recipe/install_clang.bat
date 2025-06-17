@@ -1,18 +1,21 @@
 @echo on
+setlocal enabledelayedexpansion
+
+:: Create a staging install directory
+set STAGING_DIR=%SRC_DIR%\clang\install_clang
 
 cd %SRC_DIR%\clang\build
-ninja install
+cmake --install . --prefix "%STAGING_DIR%"
 if %ERRORLEVEL% neq 0 exit 1
 
-cd %LIBRARY_PREFIX%
-rmdir /s /q lib\cmake libexec share include
-del /q /f lib\*.lib
+rmdir /s /q "%STAGING_DIR%\lib\cmake" "%STAGING_DIR%\libexec" "%STAGING_DIR%\share" "%STAGING_DIR%\include"
+del /q /f "%STAGING_DIR%\lib\*.lib"
 
-move bin bin2
-mkdir bin
+robocopy "%STAGING_DIR%" "%LIBRARY_PREFIX%" /E /MOVE
+if %ERRORLEVEL% GEQ 8 exit 1
 
-setlocal enabledelayedexpansion
 for /f "tokens=1 delims=." %%a in ("%PKG_VERSION%") do (
-  move bin2\clang.exe bin\clang-%%a.exe
+  copy "%LIBRARY_PREFIX%\bin\clang.exe" "%LIBRARY_PREFIX%\bin\clang-%%a.exe"
 )
-rmdir /s /q bin2
+
+endlocal
