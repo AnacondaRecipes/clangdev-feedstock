@@ -408,9 +408,10 @@ outputs:
         - zlib {{ zlib }}
         - zstd {{ zstd }}
       run:
-        - binutils_impl_{{ target_platform }}  # [linux]
-        - sysroot_{{ target_platform }}        # [linux]
-        - libgcc-devel_{{ target_platform }}   # [linux]
+        - binutils_impl_{{ target_platform }}              # [linux]
+        - sysroot_{{ target_platform }}                    # [linux]
+        - libgcc-devel_{{ target_platform }}               # [linux]
+        - macosx_deployment_target_{{ target_platform }}   # [osx]
         - {{ pin_subpackage("clang-" ~ major_version, exact=True) }}
     test:
       commands:
