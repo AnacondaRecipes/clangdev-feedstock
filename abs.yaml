@@ -4,3 +4,6 @@ build_parameters:
   - "-c https://staging.continuum.io/prefect/llvm-17.0.6-stage2-attempt-4"
 
 aggregate_check: false
+
+channels:
+  - https://staging.continuum.io/prefect/fs/osx-sysroot-feedstock/pr1/05b288b

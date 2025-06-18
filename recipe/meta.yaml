@@ -1,6 +1,6 @@
 {% set version = "17.0.6" %}
 {% set major_version = version.split(".")[0] %}
-{% set build_number = 4 %}
+{% set build_number = 5 %}
 
 {% set minor_aware_ext = major_version %}
 {% if version.split(".")[1] | int > 0 %}
@@ -408,9 +408,10 @@ outputs:
         - zlib {{ zlib }}
         - zstd {{ zstd }}
       run:
-        - binutils_impl_{{ target_platform }}  # [linux]
-        - sysroot_{{ target_platform }}        # [linux]
-        - libgcc-devel_{{ target_platform }}   # [linux]
+        - binutils_impl_{{ target_platform }}              # [linux]
+        - sysroot_{{ target_platform }}                    # [linux]
+        - libgcc-devel_{{ target_platform }}               # [linux]
+        - macosx_deployment_target_{{ target_platform }}   # [osx]
         - {{ pin_subpackage("clang-" ~ major_version, exact=True) }}
     test:
       commands:
