@@ -260,7 +260,6 @@ outputs:
         - zstd {{ zstd }}
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
-        - libclang {{ version }}  # [osx]
     test:
       commands:
         # presence of versioned libraries
