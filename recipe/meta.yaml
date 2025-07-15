@@ -150,6 +150,8 @@ outputs:
         # Conda build isn't able to find these libraries, although they are present.
         - $RPATH/libLLVM-{{ major_version }}{{ SHLIB_EXT }}  # [unix]
         - $RPATH/libc++.1{{ SHLIB_EXT }}  # [unix]
+        - $RPATH/libLLVM.so.{{ minor_aware_ext }}  # [linux]
+        - $RPATH/libLLVM.{{ minor_aware_ext }}{{ SHLIB_EXT }}  # [unix]
     requirements:
       build:
         - {{ compiler('cxx') }}
