@@ -47,6 +47,7 @@ source:
 build:
   number: {{ build_number }}
   skip: true  # [variant == "hcc"]
+  skip: true  # [not (osx and arm64)]
 
 requirements:
   build:
@@ -616,8 +617,9 @@ outputs:
         - clang
         - clang.cindex
       commands:
+        - python -c "import clang.cindex; print(clang.cindex.Config.library_path)"
         - cd clang/bindings/python
-        - python -m unittest discover -v
+        - python -m unittest discover -vv --buffer
 
 about:
   home: https://llvm.org/
