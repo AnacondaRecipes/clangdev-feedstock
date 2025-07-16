@@ -612,12 +612,14 @@ outputs:
       source_files:
         - clang/bindings/python/tests
         - clang/bindings/python/examples/cindex
+      requires:
+        - pytest
       imports:
         - clang
         - clang.cindex
       commands:
         - cd clang/bindings/python
-        - python -m unittest discover -v
+        - pytest tests/ -vv
 
 about:
   home: https://llvm.org/
