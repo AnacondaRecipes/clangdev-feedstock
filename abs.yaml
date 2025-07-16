@@ -5,7 +5,6 @@ build_parameters:
 aggregate_check: false
 
 channels:
-  - https://staging.continuum.io/prefect/llvm-19.1.1-stage0-build-0
-  - https://staging.continuum.io/prefect/llvm-19.1.1-stage0-build-1
+  - https://staging.continuum.io/prefect/llvm-19.1.1-stage0-build-2
 
 staging_channel_upload_target: llvm-19.1.1-stage0-build-2
