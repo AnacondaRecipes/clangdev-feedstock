@@ -50,6 +50,7 @@ build:
 
 requirements:
   build:
+    - {{ stdlib('c') }}
     - {{ compiler('cxx') }}
     - cmake
     - ninja  # [win]
@@ -65,7 +66,7 @@ requirements:
     - zlib
     - zstd
   host:
-    - libcxx {{ version }}  # [osx]
+    - libcxx-devel {{ version }}  # [osx]
     - llvmdev {{ version }}
     - libxml2 {{ libxml2 }}
     - zlib {{ zlib }}
@@ -86,6 +87,7 @@ outputs:
         - zstd     # [unix]
     requirements:
       build:
+        - {{ stdlib('c') }}
         - {{ compiler('cxx') }}
         - cmake
         - ninja  # [win]
@@ -97,7 +99,7 @@ outputs:
         - {{ pin_subpackage("libclang", exact=True) }}
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
         # Use the same requirements as the top-level requirements
-        - libcxx {{ version }}  # [osx]
+        - libcxx-devel {{ version }}  # [osx]
         - llvmdev {{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -155,6 +157,7 @@ outputs:
         - $RPATH/libLLVM.{{ minor_aware_ext }}{{ SHLIB_EXT }}  # [unix]
     requirements:
       build:
+        - {{ stdlib('c') }}
         - {{ compiler('cxx') }}
         - cmake
         - ninja  # [win]
@@ -163,7 +166,7 @@ outputs:
       host:
         - llvm {{ version }}
         # Use the same requirements as the top-level requirements
-        - libcxx {{ version }}  # [osx]
+        - libcxx-devel {{ version }}  # [osx]
         - llvmdev {{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -198,6 +201,7 @@ outputs:
         - zstd     # [unix]
     requirements:
       build:
+        - {{ stdlib('c') }}
         - {{ compiler('cxx') }}
         - cmake
         - ninja  # [win]
@@ -207,7 +211,7 @@ outputs:
         - llvm {{ version }}
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
         # Use the same requirements as the top-level requirements
-        - libcxx {{ version }}  # [osx]
+        - libcxx-devel {{ version }}  # [osx]
         - llvmdev {{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -244,6 +248,7 @@ outputs:
         - zstd     # [unix]
     requirements:
       build:
+        - {{ stdlib('c') }}
         - {{ compiler('cxx') }}
         - cmake
         - ninja                      # [win]
@@ -253,7 +258,7 @@ outputs:
         - llvm {{ version }}
         - {{ pin_subpackage("clang", exact=True) }}
         # Use the same requirements as the top-level requirements
-        - libcxx {{ version }}  # [osx]
+        - libcxx-devel {{ version }}  # [osx]
         - llvmdev {{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -307,6 +312,7 @@ outputs:
         - zstd     # [unix]
     requirements:
       build:
+        - {{ stdlib('c') }}
         - {{ compiler('cxx') }}
         - cmake
         - ninja                      # [win]
@@ -317,7 +323,7 @@ outputs:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("libclang" ~ libclang_soversion, exact=True) }}
         # Use the same requirements as the top-level requirements
-        - libcxx {{ version }}  # [osx]
+        - libcxx-devel {{ version }}  # [osx]
         - llvmdev {{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -350,17 +356,18 @@ outputs:
         - zstd     # [unix]
     requirements:
       build:
+        - {{ stdlib('c') }}
         - {{ compiler('cxx') }}
         - cmake
         - ninja                              # [win]
         - make                               # [unix]
-        - libcxx                             # [osx]
+        - libcxx-devel                       # [osx]
         - llvmdev {{ version }}
       host:
         - llvm {{ version }}
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
         # Use the same requirements as the top-level requirements
-        - libcxx {{ version }}  # [osx]
+        - libcxx-devel {{ version }}  # [osx]
         - llvmdev {{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -400,11 +407,12 @@ outputs:
         - zstd     # [unix]
     requirements:
       build:
+        - {{ stdlib('c') }}
         - {{ compiler('cxx') }}
       host:
         - {{ pin_subpackage("clang-" ~ major_version, exact=True) }}
         # Use the same requirements as the top-level requirements
-        - libcxx {{ version }}     # [osx]
+        - libcxx-devel {{ cxx_compiler_version }}   # [osx]
         - llvmdev {{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -434,12 +442,13 @@ outputs:
         - zstd     # [unix]
     requirements:
       build:
+        - {{ stdlib('c') }}
         - {{ compiler('cxx') }}
       host:
         - zlib 1.2.13   # [win]
         - {{ pin_subpackage("clang", exact=True) }}
         # Use the same requirements as the top-level requirements
-        - libcxx {{ version }}  # [osx]
+        - libcxx-devel {{ cxx_compiler_version }}   # [osx]
         - llvmdev {{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -478,6 +487,7 @@ outputs:
       build:
         # python 3.10 is required for any jit work
         - python >=3.10
+        - {{ stdlib('c') }}
         - {{ compiler('cxx') }}
         - cmake
         - make   # [unix]
@@ -489,7 +499,7 @@ outputs:
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
         - llvm {{ version }}
         # Use the same requirements as the top-level requirements
-        - libcxx {{ version }}  # [osx]
+        - libcxx-devel {{ version }}  # [osx]
         - llvmdev {{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -522,6 +532,7 @@ outputs:
       build:
         # python 3.10 is required for any jit work
         - python >=3.10
+        - {{ stdlib('c') }}
         - {{ compiler('cxx') }}
         - cmake
         - ninja  # [win]
@@ -535,7 +546,7 @@ outputs:
         - {{ pin_subpackage("clang-format-" ~ major_version, exact=True) }}      # [unix]
         - llvm {{ version }}
         # Use the same requirements as the top-level requirements
-        - libcxx {{ version }}  # [osx]
+        - libcxx-devel {{ version }}  # [osx]
         - llvmdev {{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
@@ -565,6 +576,7 @@ outputs:
       build:
         # python 3.10 is required for any jit work
         - python >=3.10
+        - {{ stdlib('c') }}
         - {{ compiler('cxx') }}
         - cmake
         - ninja  # [win]
@@ -580,7 +592,7 @@ outputs:
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
         - llvm {{ version }}
         # Use the same requirements as the top-level requirements
-        - libcxx {{ version }}  # [osx]
+        - libcxx-devel {{ version }}  # [osx]
         - llvmdev {{ version }}
         - libxml2 {{ libxml2 }}
         - zlib {{ zlib }}
