@@ -66,8 +66,8 @@ requirements:
     - libcxx-devel {{ version }}   # [osx]
     - llvmdev =={{ version }}
     - libxml2
-    - zlib
-    - zstd
+    - zlib  {{ zlib }}
+    - zstd  {{ zstd }}
 
 outputs:
   - name: clangdev
