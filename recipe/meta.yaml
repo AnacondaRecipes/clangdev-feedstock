@@ -65,7 +65,7 @@ requirements:
     - python
     - libcxx-devel {{ version }}   # [osx]
     - llvmdev =={{ version }}
-    - libxml2
+    - libxml2  {{ libxml2 }}
     - zlib  {{ zlib }}
     - zstd  {{ zstd }}
 
