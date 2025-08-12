@@ -68,9 +68,9 @@ requirements:
     - python
     - libcxx-devel {{ cxx_compiler_version }}   # [osx]
     - llvmdev =={{ version }}
-    - libxml2
-    - zlib
-    - zstd
+    - libxml2  {{ libxml2 }}
+    - zlib  {{ zlib }}
+    - zstd  {{ zstd }}
 
 outputs:
   - name: clangdev
