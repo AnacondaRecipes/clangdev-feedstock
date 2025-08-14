@@ -19,8 +19,8 @@ mkdir build
 cd build
 
 :: Remove -GL from CXXFLAGS as this takes too much time and memory
-set "CFLAGS= -MD"
-set "CXXFLAGS= -MD"
+set "CFLAGS=-MD"
+set "CXXFLAGS=-MD"
 
 set "CXX=cl.exe"
 set "CC=cl.exe"
@@ -29,6 +29,7 @@ cmake -G "Ninja" ^
     -DCMAKE_BUILD_TYPE="Release" ^
     -DCMAKE_PREFIX_PATH=%LIBRARY_PREFIX% ^
     -DCMAKE_INSTALL_PREFIX:PATH=%LIBRARY_PREFIX% ^
+    -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL ^
     -DCLANG_FORCE_MATCHING_LIBCLANG_SOVERSION=OFF ^
     -DCLANG_INCLUDE_TESTS=OFF ^
     -DCLANG_INCLUDE_DOCS=OFF ^

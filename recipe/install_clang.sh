@@ -4,12 +4,10 @@ set -ex
 cd ${SRC_DIR}/clang/build
 make install
 
-cd $PREFIX
-rm -rf lib/cmake include lib/lib*.a libexec share
-
-mv bin bin2
-mkdir -p bin
-
 MAJOR_VERSION=$(echo ${PKG_VERSION} | cut -f1 -d".")
-mv ${PREFIX}/bin2/clang-${MAJOR_VERSION} ${PREFIX}/bin/clang-${MAJOR_VERSION}
-rm -rf bin2
+if [[ ! -d $PREFIX/lib/clang/${MAJOR_VERSION}/include ]]; then
+  echo "$PREFIX/lib/clang/${MAJOR_VERSION}/include not found"
+  exit 1
+fi
+# Make sure omp.h from conda environment is found by clang
+ln -sf $PREFIX/include/omp.h $PREFIX/lib/clang/${MAJOR_VERSION}/include/
