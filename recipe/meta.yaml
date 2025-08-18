@@ -1,6 +1,6 @@
 {% set version = "17.0.6" %}
 {% set major_version = version.split(".")[0] %}
-{% set build_number = 4 %}
+{% set build_number = 5 %}
 
 {% set minor_aware_ext = major_version %}
 {% if version.split(".")[1] | int > 0 %}
@@ -444,6 +444,8 @@ outputs:
         - zstd {{ zstd }}
       run:
         - libstdcxx-devel_{{ target_platform }}  # [linux]
+        # only minor-pin to avoid issues when building new libcxx versions
+        - libcxx-devel {{ minor_aware_ext }}     # [osx]
         - {{ pin_subpackage("clang", exact=True) }}
     test:
       requires:
