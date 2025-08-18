@@ -444,6 +444,8 @@ outputs:
         - zstd {{ zstd }}
       run:
         - libstdcxx-devel_{{ target_platform }}  # [linux]
+        # only minor-pin to avoid issues when building new libcxx versions
+        - libcxx-devel {{ maj_min }}             # [osx]
         - {{ pin_subpackage("clang", exact=True) }}
     test:
       requires:
