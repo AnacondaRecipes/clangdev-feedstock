@@ -110,6 +110,9 @@ outputs:
         - {{ pin_subpackage("libclang-cpp", exact=True) }}
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
         - llvmdev {{ version }}
+      run_constrained:
+        # 19.44 needs clang 19 or higher.
+        - vs2022_win-64 <19.44  # [win]
     test:
       requires:
         - {{ compiler('cxx') }}
@@ -168,7 +171,10 @@ outputs:
         - zstd {{ zstd }}
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
-        - llvm {{ version }}  # [osx]
+        - llvm {{ version }}  # [osx] 
+      run_constrained:
+        # 19.44 needs clang 19 or higher.
+        - vs2022_win-64 <19.44  # [win]
     test:
       commands:
         - test ! -f "$PREFIX/lib/libclang-cpp.so"                             # [linux]
@@ -213,6 +219,9 @@ outputs:
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                        # [osx]
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, exact=True) }}  # [unix]
+      run_constrained:
+        # 19.44 needs clang 19 or higher.
+        - vs2022_win-64 <19.44  # [win]
     test:
       commands:
         - test -f "$PREFIX/lib/libclang-cpp.so"                     # [linux]
@@ -258,6 +267,9 @@ outputs:
         - zstd {{ zstd }}
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}  # [osx]
+      run_constrained:
+        # 19.44 needs clang 19 or higher.
+        - vs2022_win-64 <19.44  # [win]
     test:
       commands:
         # presence of versioned libraries
@@ -323,6 +335,9 @@ outputs:
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                # [osx]
         - {{ pin_subpackage("libclang" ~ libclang_soversion, exact=True) }}
+      run_constrained:
+        # 19.44 needs clang 19 or higher.
+        - vs2022_win-64 <19.44  # [win]
     test:
       commands:
         - test -f "$PREFIX/lib/libclang.so"                # [linux]
@@ -371,6 +386,8 @@ outputs:
         - clangxx {{ version }}
         - clang-tools {{ version }}
         - llvm-tools {{ version }}
+        # 19.44 needs clang 19 or higher.
+        - vs2022_win-64 <19.44  # [win]
     test:
       commands:
         - clang-{{ major_version }} --version
@@ -412,6 +429,9 @@ outputs:
         - sysroot_{{ target_platform }}        # [linux]
         - libgcc-devel_{{ target_platform }}   # [linux]
         - {{ pin_subpackage("clang-" ~ major_version, exact=True) }}
+      run_constrained:
+        # 19.44 needs clang 19 or higher.
+        - vs2022_win-64 <19.44  # [win]
     test:
       commands:
         - clang --version
@@ -447,6 +467,9 @@ outputs:
         # only minor-pin to avoid issues when building new libcxx versions
         - libcxx-devel {{ minor_aware_ext }}     # [osx]
         - {{ pin_subpackage("clang", exact=True) }}
+      run_constrained:
+        # 19.44 needs clang 19 or higher.
+        - vs2022_win-64 <19.44  # [win]
     test:
       requires:
         - {{ compiler("cxx") }}
@@ -497,6 +520,9 @@ outputs:
       run:
         - {{ pin_compatible("libcxx", max_pin=None) }}                            # [osx]
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, max_pin="x.x") }}   # [unix]
+      run_constrained:
+        # 19.44 needs clang 19 or higher.
+        - vs2022_win-64 <19.44  # [win]
     test:
       commands:
         - clang-format-{{ major_version }} --version
@@ -544,6 +570,9 @@ outputs:
         - {{ pin_compatible("libcxx", max_pin=None) }}                           # [osx]
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, max_pin="x.x") }}  # [unix]
         - {{ pin_subpackage("clang-format-" ~ major_version, exact=True) }}      # [unix]
+      run_constrained:
+        # 19.44 needs clang 19 or higher.
+        - vs2022_win-64 <19.44  # [win]
     test:
       commands:
         - clang-format --version
@@ -592,6 +621,8 @@ outputs:
         - {{ pin_subpackage("libclang-cpp" ~ minor_aware_ext, max_pin="x.x") }}   # [unix]
       run_constrained:
         - clangdev {{ version }}
+        # 19.44 needs clang 19 or higher.
+        - vs2022_win-64 <19.44  # [win]
     test:
       commands:
         - clang-check --version
@@ -608,6 +639,9 @@ outputs:
       run:
         - python
         - libclang =={{ version }}
+      run_constrained:  # [win]
+        # 19.44 needs clang 19 or higher.
+        - vs2022_win-64 <19.44  # [win]
     test:
       source_files:
         - clang/bindings/python/tests
