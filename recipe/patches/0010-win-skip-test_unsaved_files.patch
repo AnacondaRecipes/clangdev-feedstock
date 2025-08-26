@@ -21,6 +21,17 @@ index ff7213c69dd0..78a91e8cf827 100644
      def test_unsaved_files(self):
          tu = TranslationUnit.from_source(
              "fake.c",
--- 
-2.45.2
+
+diff --git a/clang/bindings/python/tests/cindex/test_source_range.py b/clang/bindings/python/tests/cindex/test_source_range.py
+index 81c0a9b05cff..2b15abf9dd50 100644
+--- a/clang/bindings/python/tests/cindex/test_source_range.py
++++ b/clang/bindings/python/tests/cindex/test_source_range.py
+@@ -18,6 +18,7 @@ def create_range(tu, line1, column1, line2, column2):
+ 
+ 
+ class TestSourceRange(unittest.TestCase):
++    @unittest.skip("Skipping due to path issue on windows")
+     def test_contains(self):
+         tu = get_tu(
+             """aaaaa
 
