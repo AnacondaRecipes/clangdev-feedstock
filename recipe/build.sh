@@ -16,7 +16,7 @@ cd clang
 
 IFS='.' read -r -a PKG_VER_ARRAY <<< "${PKG_VERSION}"
 # default SOVER for tagged releases is just the major version
-SOVER_EXT=${VER_ARR[0]}
+SOVER_EXT=${PKG_VER_ARRAY[0]}
 if [[ "${PKG_VERSION}" == *dev0 ]]; then
     # otherwise with git suffix
     SOVER_EXT="${SOVER_EXT}git"
