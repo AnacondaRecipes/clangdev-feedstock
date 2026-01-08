@@ -4,9 +4,9 @@ build_parameters:
   - "--suppress-variables"
   - "--error-overlinking"
 
-staging_channel_upload_target: llvm-21.1.8-stage0-build-0
+staging_channel_upload_target: llvm-21.1.8-stage2-build-0
 
-# Build against LLVM 21 Stage 0, with LLVM 20 fallback for graph generation
+# Build against LLVM 21 Stage 2, with LLVM 20 fallback for graph generation
 channels:
   - https://staging.continuum.io/prefect/llvm-20.1.8-stage2-build-0
-  - https://staging.continuum.io/prefect/llvm-21.1.8-stage0-build-0
+  - https://staging.continuum.io/prefect/llvm-21.1.8-stage2-build-0
