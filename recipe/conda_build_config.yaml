@@ -7,10 +7,10 @@ cxx_compiler:
 
 c_compiler_version:
   - 11.2.0            # [linux]
-  - 20.1.8            # [osx]
+  - 21.1.8            # [osx]
 cxx_compiler_version:
   - 11.2.0            # [linux]
-  - 20.1.8            # [osx]
+  - 21.1.8            # [osx]
 
 # Starting from LLVM 14, the ABI of libclang doesn't necessarily
 # match the major version anymore - cf. #170 and

@@ -1,16 +1,16 @@
 Index: llvm-project/clang/bindings/python/clang/cindex.py
 ===================================================================
---- llvm-project.orig/clang/bindings/python/clang/cindex.py	2024-09-16 10:41:00.459562394 -0500
-+++ llvm-project/clang/bindings/python/clang/cindex.py	2024-09-16 10:45:29.051291466 -0500
-@@ -63,6 +63,7 @@
- # o implement additional SourceLocation, SourceRange, and File methods.
- 
- from ctypes import *
+--- llvm-project.orig/clang/bindings/python/clang/cindex.py
++++ llvm-project/clang/bindings/python/clang/cindex.py
+@@ -82,6 +82,7 @@
+     py_object,
+ )
+
 +import ctypes.util
- 
- import clang.enumerations
- 
-@@ -3935,7 +3936,7 @@
+ import os
+ import sys
+ from enum import Enum
+@@ -4357,7 +4358,7 @@
          if name == "Darwin":
              file = "libclang.dylib"
          elif name == "Windows":
@@ -18,9 +18,9 @@ Index: llvm-project/clang/bindings/python/clang/cindex.py
 +            file = "libclang-13.dll"
          else:
              file = "libclang.so"
- 
-@@ -3947,6 +3948,17 @@
-     def get_cindex_library(self):
+
+@@ -4370,6 +4371,17 @@
+     def get_cindex_library(self) -> CDLL:
          try:
              library = cdll.LoadLibrary(self.get_filename())
 +        except OSError:
