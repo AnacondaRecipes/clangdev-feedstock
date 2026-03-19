@@ -1,0 +1,17 @@
+anaconda_config_version: 1
+upstream_sources:
+  - github:
+      identifier: llvm/llvm-project
+    packages:
+      - clang
+      - clang-21
+      - clang-format
+      - clang-format-21
+      - clang-tools
+      - clangdev
+      - clangxx
+      - libclang
+      - libclang-cpp
+      - libclang-cpp21.1
+      - libclang13
+      - python-clang
