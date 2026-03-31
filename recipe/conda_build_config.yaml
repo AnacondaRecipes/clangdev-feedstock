@@ -5,6 +5,7 @@ cxx_compiler:
   - clang_bootstrap            # [osx]
   - vs2022                     # [win]
 
+# Stage 0: Bootstrap build with LLVM 21 compiler (update to 22.1.2 in Stage 2)
 c_compiler_version:
   - 11.2.0            # [linux]
   - 21.1.8            # [osx]
