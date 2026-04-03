@@ -644,6 +644,7 @@ outputs:
       source_files:
         - clang/bindings/python/tests
         - clang/bindings/python/examples/cindex
+        - clang/include/clang-c/Index.h
       requires:
         - pytest
       imports:
@@ -651,9 +652,8 @@ outputs:
         - clang.cindex
       commands:
         - cd clang/bindings/python
-        # test_all_variants: needs Index.h source file (not shipped in test env)
         # test_non_working_libclang_library_file: LLVM 22 raises OSError instead of LibclangError
-        - pytest tests/ -vv --deselect tests/cindex/test_enums.py::TestEnums::test_all_variants --deselect tests/cindex/test_environment_variable.py::TestEnvironementVariable::test_non_working_libclang_library_file
+        - pytest tests/ -vv --deselect tests/cindex/test_environment_variable.py::TestEnvironementVariable::test_non_working_libclang_library_file
 
 about:
   home: https://llvm.org/
