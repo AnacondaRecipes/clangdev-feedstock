@@ -5,11 +5,11 @@ build_parameters:
   - "--suppress-variables"
   - "--error-overlinking"
 
-# Stage 0: Upload to LLVM 22 staging channel
-staging_channel_upload_target: llvm-22.1.2-stage0-build-0
+# Stage 0: Upload to new staging channel
+staging_channel_upload_target: llvm22-stage0
 
-# Need llvmdev 22.1.2 from Stage 0 (built by llvmdev-feedstock)
+# Need llvmdev 22.1.2 + libcxx-devel 22.1.2 from Stage 0
 channels:
-  - https://staging.continuum.io/pbp/llvm-22.1.2-stage0-build-0
+  - https://staging.continuum.io/pbp/llvm22-stage0
 
 aggregate_check: false
