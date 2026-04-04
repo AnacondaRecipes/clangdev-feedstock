@@ -9,9 +9,9 @@ build_parameters:
 staging_channel_upload_target: llvm22-stage0
 
 # Need llvmdev 22.1.2 + libcxx-devel 22.1.2 from Stage 0
-# xkong-staging has llvm-tools (480MB) — PBP staging corrupts large files (SIR-2834)
+# xkong-staging FIRST — has llvm-tools (480MB) that PBP staging corrupts (SIR-2834)
 channels:
-  - https://staging.continuum.io/pbp/llvm22-stage0
   - https://conda.anaconda.org/xkong-staging
+  - https://staging.continuum.io/pbp/llvm22-stage0
 
 aggregate_check: false
