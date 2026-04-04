@@ -5,13 +5,13 @@ cxx_compiler:
   - clang_bootstrap            # [osx]
   - vs2022                     # [win]
 
-# Stage 0: Bootstrap build with LLVM 21 compiler (update to 22.1.2 in Stage 2)
+# Stage 2: Self-hosted build with clang 22
 c_compiler_version:
   - 11.2.0            # [linux]
-  - 21.1.8            # [osx]
+  - 22.1.2            # [osx]
 cxx_compiler_version:
   - 11.2.0            # [linux]
-  - 21.1.8            # [osx]
+  - 22.1.2            # [osx]
 
 # Starting from LLVM 14, the ABI of libclang doesn't necessarily
 # match the major version anymore - cf. #170 and
