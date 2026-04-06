@@ -5,10 +5,7 @@ build_parameters:
   - "--suppress-variables"
   - "--error-overlinking"
 
-# Stage 0: Upload to new staging channel
-staging_channel_upload_target: llvm22-stage0
-
-# All LLVM 22 Stage 0 packages on anaconda.org (PBP staging corrupts large files, SIR-2834)
+# All LLVM 22 packages on anaconda.org (bypass PBP staging, SIR-2834)
 channels:
   - https://conda.anaconda.org/xkong-staging
 
