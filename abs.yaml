@@ -4,3 +4,5 @@ build_parameters:
   - "--suppress-variables"
   - "--error-overlinking"
 
+# 4 hours timeout for Windows build (default is 2 hours)
+task_timeout: 14400
