@@ -26,3 +26,6 @@ variant:
 
 c_stdlib_version:   # [win]
   - 2022.14         # [win]
+
+libxml2:
+  - 2.14.4
