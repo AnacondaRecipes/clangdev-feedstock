@@ -3,4 +3,6 @@ aggregate_check: false
 build_parameters:
   - "--suppress-variables"
   - "--error-overlinking"
-  - "-c https://staging.continuum.io/prefect/llvm-20.1.8-stage2-build-0"
+
+# 4 hours timeout for Windows build (default is 2 hours)
+task_timeout: 14400
