@@ -5,8 +5,8 @@ build_parameters:
   - "--suppress-variables"
   - "--error-overlinking"
 
-# All LLVM 22 packages on anaconda.org (bypass PBP staging, SIR-2834)
 channels:
-  - https://conda.anaconda.org/xkong-staging
+  - https://staging.continuum.io/preprod-pbp/fs/libxml2-feedstock/pr29/eca1e3e
+  - https://staging.continuum.io/preprod-pbp/fs/llvmdev-feedstock/pr46/4dbecd1
 
 aggregate_check: false
