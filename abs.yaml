@@ -1,12 +1,11 @@
 # 4 hours timeout for Windows build (default is 2 hours)
-task_timeout: 14400
+task_timeout: 34400
 
 build_parameters:
   - "--suppress-variables"
   - "--error-overlinking"
 
 channels:
-  - https://staging.continuum.io/preprod-pbp/fs/libxml2-feedstock/pr29/eca1e3e
   - https://staging.continuum.io/preprod-pbp/fs/llvmdev-feedstock/pr46/4dbecd1
 
 aggregate_check: false
