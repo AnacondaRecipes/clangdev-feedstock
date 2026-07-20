@@ -5,7 +5,4 @@ build_parameters:
   - "--suppress-variables"
   - "--error-overlinking"
 
-channels:
-  - https://staging.continuum.io/preprod-pbp/fs/llvmdev-feedstock/pr46/4dbecd1
-
 aggregate_check: false
