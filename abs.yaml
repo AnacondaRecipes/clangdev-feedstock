@@ -1,5 +1,5 @@
-# 4 hours timeout for Windows build (default is 2 hours)
-task_timeout: 34400
+# 9 hours timeout for Windows build (default is 2 hours)
+task_timeout: 32400
 
 build_parameters:
   - "--suppress-variables"
