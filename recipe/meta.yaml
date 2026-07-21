@@ -60,8 +60,8 @@ requirements:
   host:
     - python
     - libcxx-devel {{ version }}   # [osx]
-    - llvmdev =={{ version }}
-    - libxml2  {{ libxml2 }}
+    - llvmdev {{ version }}
+    - libxml2 {{ libxml2 }}
     - zlib  {{ zlib }}
     - zstd  {{ zstd }}
 
@@ -85,7 +85,6 @@ outputs:
         - cmake
         - ninja  # [win]
         - make   # [unix]
-        - llvmdev =={{ version }}    # [build_platform != target_platform]
       host:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("clangxx", exact=True) }}
@@ -159,7 +158,6 @@ outputs:
         - cmake
         - ninja  # [win]
         - make   # [unix]
-        - llvmdev {{ version }}    # [build_platform != target_platform]
       host:
         - llvm {{ version }}
         # Use the same requirements as the top-level requirements
@@ -256,7 +254,6 @@ outputs:
         - cmake
         - ninja                      # [win]
         - make                       # [unix]
-        - llvmdev =={{ version }}    # [build_platform != target_platform]
       host:
         - llvm {{ version }}
         - {{ pin_subpackage("clang", exact=True) }}
@@ -321,7 +318,6 @@ outputs:
         - cmake
         - ninja                      # [win]
         - make                       # [unix]
-        - llvmdev =={{ version }}    # [build_platform != target_platform]
       host:
         - llvm {{ version }}
         - {{ pin_subpackage("clang", exact=True) }}
@@ -366,7 +362,6 @@ outputs:
         - cmake
         - ninja                              # [win]
         - make                               # [unix]
-        - llvmdev =={{ version }}            # [build_platform != target_platform]
       host:
         - llvm {{ version }}
         - {{ pin_subpackage("libclang-cpp" ~ maj_min, exact=True) }}  # [unix]
@@ -550,7 +545,6 @@ outputs:
         - cmake
         - ninja  # [win]
         - make   # [unix]
-        - llvmdev =={{ version }}    # [build_platform != target_platform]
       host:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("clangxx", exact=True) }}
