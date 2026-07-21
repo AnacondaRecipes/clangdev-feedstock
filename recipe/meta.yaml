@@ -1,7 +1,7 @@
 {% set version = "22.1.2" %}
 {% set major_version = version.split(".")[0] %}
 {% set tail_version = version.split(".")[-1] %}
-{% set build_number = 1 %}
+{% set build_number = 2 %}
 
 # always includes minor as of v18, see https://github.com/llvm/llvm-project/issues/76273
 {% set maj_min = major_version ~ "." ~ version.split(".")[1] %}
@@ -57,15 +57,11 @@ requirements:
     - make   # [unix]
     # "compiling .pyc files" fails without this
     - python >3
-    - llvmdev =={{ version }}    # [build_platform != target_platform]
-    - libxml2                    # [build_platform != target_platform]
-    - zlib                       # [build_platform != target_platform]
-    - zstd                       # [build_platform != target_platform]
   host:
     - python
     - libcxx-devel {{ version }}   # [osx]
-    - llvmdev =={{ version }}
-    - libxml2  {{ libxml2 }}
+    - llvmdev {{ version }}
+    - libxml2 {{ libxml2 }}
     - zlib  {{ zlib }}
     - zstd  {{ zstd }}
 
@@ -89,7 +85,6 @@ outputs:
         - cmake
         - ninja  # [win]
         - make   # [unix]
-        - llvmdev =={{ version }}    # [build_platform != target_platform]
       host:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("clangxx", exact=True) }}
@@ -163,7 +158,6 @@ outputs:
         - cmake
         - ninja  # [win]
         - make   # [unix]
-        - llvmdev {{ version }}    # [build_platform != target_platform]
       host:
         - llvm {{ version }}
         # Use the same requirements as the top-level requirements
@@ -260,7 +254,6 @@ outputs:
         - cmake
         - ninja                      # [win]
         - make                       # [unix]
-        - llvmdev =={{ version }}    # [build_platform != target_platform]
       host:
         - llvm {{ version }}
         - {{ pin_subpackage("clang", exact=True) }}
@@ -325,7 +318,6 @@ outputs:
         - cmake
         - ninja                      # [win]
         - make                       # [unix]
-        - llvmdev =={{ version }}    # [build_platform != target_platform]
       host:
         - llvm {{ version }}
         - {{ pin_subpackage("clang", exact=True) }}
@@ -370,7 +362,6 @@ outputs:
         - cmake
         - ninja                              # [win]
         - make                               # [unix]
-        - llvmdev =={{ version }}            # [build_platform != target_platform]
       host:
         - llvm {{ version }}
         - {{ pin_subpackage("libclang-cpp" ~ maj_min, exact=True) }}  # [unix]
@@ -554,7 +545,6 @@ outputs:
         - cmake
         - ninja  # [win]
         - make   # [unix]
-        - llvmdev =={{ version }}    # [build_platform != target_platform]
       host:
         - {{ pin_subpackage("clang", exact=True) }}
         - {{ pin_subpackage("clangxx", exact=True) }}
