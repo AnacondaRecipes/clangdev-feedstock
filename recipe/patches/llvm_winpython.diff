@@ -1,5 +1,5 @@
 diff --git a/clang/bindings/python/clang/cindex.py b/clang/bindings/python/clang/cindex.py
-index 24b7371..a4eafb0 100644
+index 24b7371..81fdd84 100644
 --- a/clang/bindings/python/clang/cindex.py
 +++ b/clang/bindings/python/clang/cindex.py
 @@ -81,6 +81,7 @@ from ctypes import (
@@ -19,7 +19,7 @@ index 24b7371..a4eafb0 100644
          else:
              file = "libclang.so"
  
-@@ -4641,6 +4642,17 @@ class Config:
+@@ -4641,6 +4642,20 @@ class Config:
          return file
  
      def get_cindex_library(self) -> CDLL:
@@ -31,7 +31,10 @@ index 24b7371..a4eafb0 100644
 +            return library
 +        t = ctypes.util.find_library(self.get_filename())
 +        if t:
-+            return cdll.LoadLibrary(t)
++            try:
++                return cdll.LoadLibrary(t)
++            except OSError:
++                pass
 +
 +        # redo for getting proper system-error message
          try:
