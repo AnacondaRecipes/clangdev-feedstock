@@ -1,7 +1,7 @@
-{% set version = "22.1.2" %}
+{% set version = "23.1.4" %}
 {% set major_version = version.split(".")[0] %}
 {% set tail_version = version.split(".")[-1] %}
-{% set build_number = 2 %}
+{% set build_number = 0 %}
 
 # always includes minor as of v18, see https://github.com/llvm/llvm-project/issues/76273
 {% set maj_min = major_version ~ "." ~ version.split(".")[1] %}
@@ -23,13 +23,12 @@ package:
 
 source:
   - url: https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-{{ version.replace(".rc", "-rc") }}.tar.gz
-    sha256: a252efd7a4a268d2cc5145b17adcaa82757fdee1d06d748b4c24137807710ecb
+    sha256: 3e1c70b30f623976c2046d94b8eeab6cac536f107914cb4ed7bac572a03131db
     patches:
       - patches/0001-Find-conda-gcc-installation.patch
       - patches/0002-Fix-sysroot-detection-for-linux.patch
       - patches/0003-clang-add-conda-specific-env-var-CONDA_BUILD_SYSROOT.patch
       - patches/0004-Fix-normalizeProgramName-s-handling-of-dots-outside-.patch
-      - patches/0005-Set-VERSION-in-osx-as-well.patch
       - patches/0006-Fix-crosscompiling-LLVM-tools.patch
       - patches/0008-set-libclang-SOVERSION-unconditionally.patch
       - patches/0009-Make-PIE-default-on-macOS-too.patch
@@ -606,7 +605,7 @@ outputs:
         - zlib {{ zlib }}
         - zstd {{ zstd }}
       run:
-        - ucrt                                          # [win]
+        - ucrt                                          # [win and x86_64]
         - {{ pin_subpackage("clang-format", exact=True) }}
         - {{ pin_subpackage("libclang" ~ libclang_soversion, max_pin=None) }}
         - {{ pin_subpackage("libclang-cpp" ~ maj_min, max_pin="x.x") }}   # [unix]

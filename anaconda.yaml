@@ -8,14 +8,14 @@ upstream_sources:
       to_pattern: \1
     packages:
       - clang
-      - clang-22
+      - clang-23
       - clang-format
-      - clang-format-22
+      - clang-format-23
       - clang-tools
       - clangdev
       - clangxx
       - libclang
       - libclang-cpp
-      - libclang-cpp22.1
+      - libclang-cpp23.1
       - libclang13
       - python-clang
