@@ -8,10 +8,10 @@ Subject: [PATCH 02/10] Fix sysroot detection for linux
  1 file changed, 16 insertions(+), 4 deletions(-)
 
 diff --git a/clang/lib/Driver/ToolChains/Linux.cpp b/clang/lib/Driver/ToolChains/Linux.cpp
-index 0767fe6c5879..c60149e93ba7 100644
+index 8d30a5e..4e9b638 100644
 --- a/clang/lib/Driver/ToolChains/Linux.cpp
 +++ b/clang/lib/Driver/ToolChains/Linux.cpp
-@@ -421,18 +421,30 @@ std::string Linux::computeSysRoot() const {
+@@ -436,18 +436,30 @@ std::string Linux::computeSysRoot() const {
      return std::string();
    }
  

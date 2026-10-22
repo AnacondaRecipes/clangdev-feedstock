@@ -1,16 +1,16 @@
-Index: llvm-project/clang/bindings/python/clang/cindex.py
-===================================================================
---- llvm-project.orig/clang/bindings/python/clang/cindex.py
-+++ llvm-project/clang/bindings/python/clang/cindex.py
-@@ -82,6 +82,7 @@
+diff --git a/clang/bindings/python/clang/cindex.py b/clang/bindings/python/clang/cindex.py
+index 24b7371..a4eafb0 100644
+--- a/clang/bindings/python/clang/cindex.py
++++ b/clang/bindings/python/clang/cindex.py
+@@ -81,6 +81,7 @@ from ctypes import (
      py_object,
  )
-
+ 
 +import ctypes.util
  import os
  import sys
  from enum import Enum
-@@ -4357,7 +4358,7 @@
+@@ -4631,7 +4632,7 @@ class Config:
          if name == "Darwin":
              file = "libclang.dylib"
          elif name == "Windows":
@@ -18,11 +18,13 @@ Index: llvm-project/clang/bindings/python/clang/cindex.py
 +            file = "libclang-13.dll"
          else:
              file = "libclang.so"
-
-@@ -4370,6 +4371,17 @@
+ 
+@@ -4641,6 +4642,17 @@ class Config:
+         return file
+ 
      def get_cindex_library(self) -> CDLL:
-         try:
-             library = cdll.LoadLibrary(self.get_filename())
++        try:
++            library = cdll.LoadLibrary(self.get_filename())
 +        except OSError:
 +            pass
 +        else:
@@ -32,8 +34,6 @@ Index: llvm-project/clang/bindings/python/clang/cindex.py
 +            return cdll.LoadLibrary(t)
 +
 +        # redo for getting proper system-error message
-+        try:
-+            library = cdll.LoadLibrary(self.get_filename())
+         try:
+             library = cdll.LoadLibrary(self.get_filename())
          except OSError as e:
-             msg = (
-                 str(e) + ". To provide a path to libclang use "

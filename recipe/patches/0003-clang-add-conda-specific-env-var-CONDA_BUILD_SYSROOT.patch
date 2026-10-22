@@ -9,14 +9,18 @@ Co-authored-by: Chris Burr <christopher.burr@cern.ch>
 Co-authored-by: Vincenzo Eduardo Padulano <v.e.padulano@gmail.com>
 Co-authored-by: Isuru Fernando <isuruf@gmail.com>
 Co-authored-by: H. Vetinari <h.vetinari@gmx.com>
+
+Rebased for LLVM 23: the CONDA_BUILD_SYSROOT and xcrun fallbacks only
+apply when no explicit -isysroot is given, as before.
+
 ---
- clang/lib/Driver/Driver.cpp            |  5 ++
- clang/lib/Driver/ToolChains/Darwin.cpp | 74 +++++++++++++++++++++++++-
+ clang/lib/Driver/Driver.cpp            |  5 +++
+ clang/lib/Driver/ToolChains/Darwin.cpp | 79 +++++++++++++++++++++++++++++++++-
  clang/lib/Lex/InitHeaderSearch.cpp     |  6 ++-
- 3 files changed, 82 insertions(+), 3 deletions(-)
+ 3 files changed, 87 insertions(+), 3 deletions(-)
 
 diff --git a/clang/lib/Driver/Driver.cpp b/clang/lib/Driver/Driver.cpp
-index e606cdc4c1cf..9a4e25ed1408 100644
+index e606cdc..9a4e25e 100644
 --- a/clang/lib/Driver/Driver.cpp
 +++ b/clang/lib/Driver/Driver.cpp
 @@ -1613,6 +1613,11 @@ Compilation *Driver::BuildCompilation(ArrayRef<const char *> ArgList) {
@@ -32,7 +36,7 @@ index e606cdc4c1cf..9a4e25ed1408 100644
      SysRoot = A->getValue();
    if (const Arg *A = Args.getLastArg(options::OPT__dyld_prefix_EQ))
 diff --git a/clang/lib/Driver/ToolChains/Darwin.cpp b/clang/lib/Driver/ToolChains/Darwin.cpp
-index a729fb4fc1a4..9ddd65ce7264 100644
+index a729fb4..94cc529 100644
 --- a/clang/lib/Driver/ToolChains/Darwin.cpp
 +++ b/clang/lib/Driver/ToolChains/Darwin.cpp
 @@ -27,6 +27,18 @@
@@ -54,16 +58,25 @@ index a729fb4fc1a4..9ddd65ce7264 100644
  #ifdef CLANG_USE_XCSELECT
  #include <xcselect.h> // ::xcselect_host_sdk_path
  #endif
-@@ -2571,6 +2583,8 @@ void Darwin::AddDeploymentTarget(DerivedArgList &Args) const {
+@@ -2571,11 +2583,17 @@ void Darwin::AddDeploymentTarget(DerivedArgList &Args) const {
    // we do not have --no-xcselect.
    bool TryXcselect = false;
    (void)TryXcselect;
 +  std::string foundSDKPath = "/";
 +  std::string prefixToTry = "/";
++  // An explicit -isysroot always wins; the conda fallbacks below only apply
++  // when the sysroot was not given on the command line.
++  bool HasExplicitSysroot = false;
  
    // Support allowing the SDKROOT environment variable used by xcrun and other
    // Xcode tools to define the default sysroot, by making it the default for
-@@ -2584,14 +2598,70 @@ void Darwin::AddDeploymentTarget(DerivedArgList &Args) const {
+   // isysroot.
+   if (const Arg *A = Args.getLastArg(options::OPT_isysroot)) {
++    HasExplicitSysroot = true;
+     // Warn if the path does not exist.
+     if (!getVFS().exists(A->getValue()))
+       getDriver().Diag(clang::diag::warn_missing_sysroot) << A->getValue();
+@@ -2584,14 +2602,71 @@ void Darwin::AddDeploymentTarget(DerivedArgList &Args) const {
      // exists, and it is not the root path.
      if (llvm::sys::path::is_absolute(env) && getVFS().exists(env) &&
          StringRef(env) != "/") {
@@ -76,7 +89,7 @@ index a729fb4fc1a4..9ddd65ce7264 100644
                    !Args.hasArg(options::OPT_no_xcselect);
    }
  
-+  if (foundSDKPath == "/") {
++  if (!HasExplicitSysroot && foundSDKPath == "/") {
 +    if (char *env = ::getenv("CONDA_BUILD_SYSROOT")) {
 +      // We only use this value as the default if it is an absolute path,
 +      // exists, and it is not the root path.
@@ -89,7 +102,8 @@ index a729fb4fc1a4..9ddd65ce7264 100644
 +
 +  // If the SDK is not found by now and it's not inside /, our only choice
 +  // is to fail or ask Apple CLI utilities for help
-+  if (foundSDKPath == "/" && !getVFS().exists("/usr/include/sys/types.h")) {
++  if (!HasExplicitSysroot && foundSDKPath == "/" &&
++      !getVFS().exists("/usr/include/sys/types.h")) {
 +     auto pathFromExecutable = [](llvm::ArrayRef<llvm::StringRef> Argv)
 +        -> std::optional<std::string> {
 +      // Inspired by clang-tools-extra/clangd/CompileCommands.cpp
@@ -137,7 +151,7 @@ index a729fb4fc1a4..9ddd65ce7264 100644
    // that we can pass down to the compiler.
    SDKInfo = parseSDKSettings(getVFS(), Args, getDriver());
 diff --git a/clang/lib/Lex/InitHeaderSearch.cpp b/clang/lib/Lex/InitHeaderSearch.cpp
-index e894086b66e7..85f86b3153ca 100644
+index e894086..85f86b3 100644
 --- a/clang/lib/Lex/InitHeaderSearch.cpp
 +++ b/clang/lib/Lex/InitHeaderSearch.cpp
 @@ -21,6 +21,7 @@
