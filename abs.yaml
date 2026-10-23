@@ -1,7 +1,2 @@
 # 9 hours timeout for Windows build (default is 2 hours)
 task_timeout: 32400
-
-# PR CI only - llvmdev 23.1.4 from AnacondaRecipes/llvmdev-feedstock#54 (graph of head 29651e2);
-# REMOVE before merge (clangdev hosts and runs llvmdev 23.1.4, which is not on pkgs/main yet)
-channels:
-  - https://package-build.internal.anaconda.com/pkg-orchestrator/v1/channels/graphs/34f32ba0-dc3e-45bc-ac9f-354c92dfb410
