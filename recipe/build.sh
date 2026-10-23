@@ -39,7 +39,9 @@ fi
 
 if [[ "$target_platform" == osx* ]]; then
   export CXXFLAGS="$CXXFLAGS -DTARGET_OS_OSX=1"
-  CMAKE_ARGS="$CMAKE_ARGS -DLLVM_ENABLE_LIBCXX=ON"
+  # LLVM 23 versions Darwin dylibs only when asked (replaces patch "Set VERSION in osx as well");
+  # keep libclang versioned too, so libclang13 still ships libclang.13.dylib
+  CMAKE_ARGS="$CMAKE_ARGS -DLLVM_ENABLE_LIBCXX=ON -DLLVM_VERSIONED_DYLIB_NAME_ON_DARWIN=ON -DLLVM_UNVERSIONED_LIBCLANG_ON_DARWIN=OFF"
 fi
 
 

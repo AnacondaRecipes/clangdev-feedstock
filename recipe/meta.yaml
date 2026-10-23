@@ -1,7 +1,7 @@
-{% set version = "22.1.2" %}
+{% set version = "23.1.4" %}
 {% set major_version = version.split(".")[0] %}
 {% set tail_version = version.split(".")[-1] %}
-{% set build_number = 2 %}
+{% set build_number = 0 %}
 
 # always includes minor as of v18, see https://github.com/llvm/llvm-project/issues/76273
 {% set maj_min = major_version ~ "." ~ version.split(".")[1] %}
@@ -12,24 +12,18 @@
 {% set extra = "git" if tail_version|trim("0123456789") == "dev" else extra %}
 {% set sover = maj_min ~ extra %}
 
-{% if libclang_soversion is not defined %}
-# see https://github.com/llvm/llvm-project/blob/release/18.x/clang/tools/libclang/CMakeLists.txt
-{% set libclang_soversion = "13" %}
-{% endif %}
-
 package:
   name: clang_packages
   version: {{ version }}
 
 source:
   - url: https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-{{ version.replace(".rc", "-rc") }}.tar.gz
-    sha256: a252efd7a4a268d2cc5145b17adcaa82757fdee1d06d748b4c24137807710ecb
+    sha256: 3e1c70b30f623976c2046d94b8eeab6cac536f107914cb4ed7bac572a03131db
     patches:
       - patches/0001-Find-conda-gcc-installation.patch
       - patches/0002-Fix-sysroot-detection-for-linux.patch
       - patches/0003-clang-add-conda-specific-env-var-CONDA_BUILD_SYSROOT.patch
       - patches/0004-Fix-normalizeProgramName-s-handling-of-dots-outside-.patch
-      - patches/0005-Set-VERSION-in-osx-as-well.patch
       - patches/0006-Fix-crosscompiling-LLVM-tools.patch
       - patches/0008-set-libclang-SOVERSION-unconditionally.patch
       - patches/0009-Make-PIE-default-on-macOS-too.patch
@@ -279,8 +273,7 @@ outputs:
         - if exist %LIBRARY_BIN%\libclang.dll exit 1                        # [win]
         - if exist %LIBRARY_LIB%\libclang.lib exit 1                        # [win]
 
-        {% if libclang_soversion != major_version %}
-        # absence of major version if soversion is different
+        # absence of major version (libclang_soversion differs from the major version)
         - test ! -f $PREFIX/lib/libclang.so.{{ major_version }}             # [linux]
         - test ! -f $PREFIX/lib/libclang.{{ major_version }}.dylib          # [osx]
         - if exist %LIBRARY_BIN%\libclang-{{ major_version }}.dll exit 1    # [win]
@@ -289,7 +282,6 @@ outputs:
         - test ! -f $PREFIX/lib/libclang.so.{{ version }}                   # [linux]
         - test ! -f $PREFIX/lib/libclang.{{ version }}.dylib                # [osx]
         - if exist %LIBRARY_BIN%\libclang-{{ version }}.dll exit 1          # [win]
-        {% endif %}
 
   - name: libclang
     script: install_libclang.sh  # [unix]
@@ -465,15 +457,19 @@ outputs:
         - {{ pin_subpackage("clang", exact=True) }}
     test:
       requires:
-        - {{ compiler("cxx") }}
+        # not on osx: clang_bootstrap bundles its own libc++ headers, which clash with libcxx-devel {{ maj_min }}
+        - {{ compiler("cxx") }}   # [not osx]
       files:
         - mytest.cxx
       commands:
         - clang++ --version
         - clang++ -v -c mytest.cxx
+        # an explicit -isysroot must win over CONDA_BUILD_SYSROOT and the xcrun fallback (patch 0003)
+        - test $(CONDA_BUILD_SYSROOT="$(xcrun --show-sdk-path)" clang++ -v -fsyntax-only -x c++ -isysroot "$PWD" /dev/null 2>&1 | grep -o " -isysroot " | wc -l) -eq 1   # [osx]
         - unset CONDA_BUILD_SYSROOT   # [unix]
         - set "CONDA_BUILD_SYSROOT="  # [win]
         - clang++ -v -c mytest.cxx
+        - test $(clang++ -v -fsyntax-only -x c++ -isysroot "$PWD" /dev/null 2>&1 | grep -o " -isysroot " | wc -l) -eq 1   # [osx]
 
   - name: clang-format-{{ major_version }}
     script: install_clang_format.sh  # [unix]
@@ -606,7 +602,7 @@ outputs:
         - zlib {{ zlib }}
         - zstd {{ zstd }}
       run:
-        - ucrt                                          # [win]
+        - ucrt                                          # [win and x86_64]
         - {{ pin_subpackage("clang-format", exact=True) }}
         - {{ pin_subpackage("libclang" ~ libclang_soversion, max_pin=None) }}
         - {{ pin_subpackage("libclang-cpp" ~ maj_min, max_pin="x.x") }}   # [unix]
@@ -635,15 +631,13 @@ outputs:
         - clang/bindings/python/tests
         - clang/bindings/python/examples/cindex
         - clang/include/clang-c/Index.h
-      requires:
-        - pytest
       imports:
         - clang
         - clang.cindex
       commands:
         - cd clang/bindings/python
-        # test_non_working_libclang_library_file: LLVM 22 raises OSError instead of LibclangError
-        - pytest tests/ -vv --deselect tests/cindex/test_environment_variable.py::TestEnvironementVariable::test_non_working_libclang_library_file
+        # upstream's runner: the tests count DeprecationWarnings with unittest's warning filter
+        - python -m unittest discover -v
 
 about:
   home: https://llvm.org/
@@ -668,6 +662,9 @@ extra:
     # for some of the individual outputs.
     - missing_tests
     - should_use_compilers
+    # the top-level host python (for the bindings) is attributed to every output; only
+    # python-clang is a python package, and it has test imports
+    - missing_imports_or_run_test_py
   recipe-maintainers:
     - JohanMabille
     - inducer

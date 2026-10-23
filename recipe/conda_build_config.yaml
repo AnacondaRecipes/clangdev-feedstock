@@ -5,7 +5,7 @@ cxx_compiler:
   - clang_bootstrap            # [osx]
   - vs2022                     # [win]
 
-# Stage 2: Self-hosted build with clang 22
+# macOS builds with the released clang_bootstrap (LLVM 22); release-first order of the LLVM 23 chain
 c_compiler_version:
   - 11.2.0            # [linux]
   - 22.1.2            # [osx]
@@ -24,9 +24,6 @@ variant:
 # For future compatibility with AMD ROCm
 # https://github.com/ROCm/hcc
 #  - hcc   # [linux]
-
-c_stdlib_version:   # [win]
-  - 2022.14         # [win]
 
 libxml2:
   - 2.15.3
